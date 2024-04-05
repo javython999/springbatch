@@ -1,4 +1,5 @@
 # Spring Batch
+***
 ## 스프링 배치 시작
 > 스프링 배치 활성화
   * `@EnableBatchProcessing` 스프링 배치가 작동하기 위해 선언해야 하는 애노테이션
@@ -69,3 +70,104 @@ public class HelloJobConfiguration { // Job을 정의
        * 스크립트 항상 실행 안함
        * 내장 DB 일 경우 스클비트가 생성이 안되기 때문에 오류 발생
        * 운영에서 수동으로 스크립트 생성 후 설정하는 것을 권장
+> Job 관련 테이블
+* BATCH_JOB_INSTANCE
+  * Job이 실행될 때 JobInstance 정보가 저장되며 `job_name`과 `job_key`를 키로 하여 하나의 데이터가 저장
+  * 동일한 `job_name`과 `job_key`로 중복 저장 될 수 없다.
+
+| 컬럼              | 내용                                   |
+|-----------------|--------------------------------------|
+| JOB_INSTANCE_ID | 고유하게 식별할 수 있는 기본 키                   |
+| VERSION         | 업데이트 될 때마다 1씩 증가                     |
+| JOB_NAME        | Job을 구성할 때 부여하는 Job의 이름              |
+| JOB_KEY         | job_name과 jobParameter를 합쳐 해싱한 값을 저장 |
+
+* BATCH_JOB_EXECUTION
+  * Job의 실행정보가 저장되며 Job 생성, 시작, 종료 시간, 실행상태, 메시지 등을 관리
+
+| 컬럼               | 내용                                                                            |
+|------------------|-------------------------------------------------------------------------------|
+| JOB_EXECUTION_ID | 고유하게 식별할 수 있는 기본 키, JOB_INSTANCE와 일대다 관계                                     |
+| VERSION          | 업데이트 될 때마다 1씩 증가                                                              |
+| JOB_INSTANCE_ID  | JOB_INSTANCE의 키 저장                                                            |
+| CREATE_TIME      | 실행(Execution)이 생성된 시점을 TimeStamp 형식으로 기록                                      |
+| START_TIME       | 실행(Execution)이 시작된 시점을 TimeStamp 형식으로 기록                                      |
+| END_TIME         | 실행이 종료된 시점을 TimeStamp 형식으로 기록하며 Job 실행도중 오류가 발생해서 Job이 중단된 경우 값이 저장되지 않을 수 있음 |
+| STATUS           | 실행상태(BatchStatus)를 저장 (COMPLETE, FAILED, STOPPED...)                          |
+| EXIT_CODE        | 실행 종료코드(ExitStatus)를 저장 (COMPLETED, FAILED...)                                |
+| LAST_UPDATED     | 마지막 실행(Exectuion) 시점을 TimeStamp 형식으로 기록                                       |
+
+* BATCH_JOB_EXECUTION_PARAMS
+  * Job과 함께 실행되는 JobParameter 정보를 저장
+
+| 컬럼               | 내용                                       |
+|------------------|------------------------------------------|
+| JOB_EXECUTION_ID | JobExecution 식별키, JOB_EXECUTION과는 일대다 관계 |
+| TYPE_CD          | STRING, LONG, DATE, DUBLE 타입 정보          |
+| KEY_NAME         | 파라미터 키 값                                 |
+| STRING_VAL       | 파라미터 문자 값                                |
+| DATE_VAL         | 파라미터 날짜 값                                |
+| LONG_VAL         | 파라미터 LONG 값                              |
+| DOUBLE_VAL       | 파라미터 DOUBLE 값                            |
+| IDENTIFYING      | 식별여부 (TRUE, FALSE)                       |
+
+* BATCH_JOB_EXECUTION_CONTEXT
+  * Job이 실행되는 동안 여러가지 상태정보, 공유 데이터를 직렬화(JSON 형식) 해서 저장
+  * Step 간 서로 공유 가능함
+
+| 컬럼                | 내용                                      |
+|--------------------|-----------------------------------------|
+| JOB_EXECUTION_ID   | JobExecution 식별키, JOB_EXECUTION 마다 각각 생성 |
+| SHORT_CONTEXT      | JOB의 실행 상태 정보, 공유 데이터 등의 정보를 문자열로 저장  |
+| SERIALIZED_CONTEXT | 직렬화(serialized)된 전체 컨텍스트                |
+
+> Step 관련 테이블
+* BATCH_STEP_EXECUTION
+  * Step의 실행정보가 저장되며 생성, 시작, 종료 시간, 실행상태, 메시지 등을 관리
+
+| 컬럼                | 내용                                                                            |
+|--------------------|-------------------------------------------------------------------------------|
+| STEP_EXECUTION_ID  | Step의 실행정보를 고유하게 식별할 수 있는 기본 키                                                |
+| VERSION            | 업데이트 될 때마다 1씩 증가                                                              |
+| STEP_NAME          | Step을 구성할 때 부여하는 Step의 이름                                                     |
+| JOB_EXECUTION_ID   | JobExecution 기본키, JobExecution과는 일대다 관계                                       |
+| START_TIME         | 실행(Execution)이 시작된 시점을 TimeStamp 형식으로 기록                                      |
+| END_TIME           | 실행이 종료된 시점을 TimeStamp 형식으로 기록하며 Job 실행도중 오류가 발생해서 Job이 중단된 경우 값이 저장되지 않을 수 있음 |
+| STATUS             | 실행 상태 (BatchStatus)를 저장 (COMPLETED, FAILED, STOPPED...)                       |
+| COMMIT_COUNT       | 트랜잭션 당 커밋되는 수를 기록                                                             |
+| READ_COUNT         | 실행시점에 READ한 ITEM 수를 기록                                                        |
+| FILTER_COUNT       | 실행도중 필터링된 ITEM 수를 기록                                                          |
+| WRITE_COUNT        | 실행도중 저장되고 커밋된 ITEM 수를 기록                                                      |
+| READ_SKIP_COUNT    | 실행도중 READ가 SKIP된 ITEM 수를 기록                                                   |
+| WRITE_SKIP_COUNT   | 실행도중 WRITE가 SKIP된 ITEM 수를 기록                                                  |
+| PROCESS_SKIP_COUNT | 실행도중 PROCESS가 SKIP된 ITEM 수를 기록                                                |
+| ROLLBACK_COUNT     | 실행도중 ROLLBACK이 일어난 수를 기록                                                      |
+| EXIT_CODE          | 실행종료 코드(ExitStatus)를 저장 (COMPLETED, FAILED...)                                |
+| EXIT_MESSAGE       | Status가 실패일 경우 실패 원인 등의 내용을 저장                                                |
+| LAST_UPDATED       | 마지막 실행(Execution) 시점을 TimeStamp 형식으로 기록                                       |
+
+* BATCH_STEP_EXECUTION_CONTEXT
+  * Step이 실행되는 동안 여러가지 상태 정보, 공유 데이터를 직렬화(JSON 형식) 해서 저장
+  * Step 별로 저장되며 Step 간 서로 공유할 수 없음
+
+| 컬럼                | 내용                                  |
+|--------------------|-------------------------------------|
+| STEP_EXECUTION_ID  | Step의 실행정보를 고유하게 식별할 수 있는 기본 키      |
+| SHORT_CONTEXT      | STEP의 실행 상태정보, 공유데이터 등의 정보를 문자열로 저장 |
+| SERIALIZED_CONTEXT | 직렬화(serialized)된 전체 컨텍스트                 |
+***
+## 스프링 배치 도메인 이해
+> Job
+1. 기본 개념
+   * 배치 계층 구조에서 가장 상위에 있는 개념으로서 하나의 배치 작업 자체를 의미함
+     * 예) `API 서버의 접속 로그 데이터를 통계 서버로 옮기는 배치`인 Job 자체를 의미한다.
+   * Job Configuration을 통해 생성되는 객체 단위로서 배치작업을 어떻게 구성하고 실행할 것인지 전체적으로 설정하고 명세해 놓은 객체
+   * 배치 Job을 구성하기 위한 최상위 인터페이스이며 스프링 배치가 기본 구현체를 제공한다.
+   * 여러 Step을 포함하고 있는 컨테이너로서 반드시 한개 이상의 Step으로 구성해야함.
+2. 기본 구현체
+   * SimpleJob
+     * 순차적으로 Step을 실행시키는 Job
+     * 모든 Job에서 유용하게 사용할 수 있는 표준 기능을 갖고 있음
+   * FlowJob
+     * 특정한 조건과 흐름에 따라 Step을 구성하여 실행시키는 Job
+     * Flow 객체를 실행시켜서 작업을 진행함

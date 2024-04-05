@@ -2,7 +2,7 @@ spring:
   application:
     name: springBatch
   profiles:
-    active: local
+    active: mysql
 ---
 spring:
   config:
