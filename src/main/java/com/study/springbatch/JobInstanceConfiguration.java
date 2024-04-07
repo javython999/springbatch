@@ -1,6 +1,5 @@
 package com.study.springbatch;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -11,13 +10,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-//@Configuration
-@RequiredArgsConstructor
-public class JobConfiguration {
+@Configuration
+public class JobInstanceConfiguration {
 
     @Bean
-    public Job job(JobRepository jobRepository, Step step1, Step step2) {
-        return new JobBuilder("JobConfiguration-job", jobRepository)
+    public Job jobInstnace(JobRepository jobRepository, Step step1, Step step2) {
+        return new JobBuilder("JobInstance", jobRepository)
                 .start(step1)
                 .next(step2)
                 .build();
@@ -25,19 +23,19 @@ public class JobConfiguration {
 
     @Bean
     public Step step1(JobRepository jobRepository, PlatformTransactionManager tx) {
-        return new StepBuilder("JobConfiguration-step1", jobRepository)
-                .tasklet(((contribution, chunkConext) -> {
-                    System.out.println("step1 was executed");
+        return new StepBuilder("jobinstance-step1", jobRepository)
+                .tasklet((contribution, chunkContext) -> {
+                    System.out.println("STEP1 EXECUTED");
                     return RepeatStatus.FINISHED;
-                }), tx).build();
+                }, tx).build();
     }
 
     @Bean
     public Step step2(JobRepository jobRepository, PlatformTransactionManager tx) {
-        return new StepBuilder("JobConfiguration-step2", jobRepository)
-                .tasklet(((contribution, chunkConext) -> {
-                    System.out.println("step2 was executed");
+        return new StepBuilder("jobinstance-step2", jobRepository)
+                .tasklet((contribution, chunkContext) -> {
+                    System.out.println("STEP2 EXECUTED");
                     return RepeatStatus.FINISHED;
-                }), tx).build();
+                }, tx).build();
     }
 }
