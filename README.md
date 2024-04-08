@@ -184,3 +184,18 @@ public class HelloJobConfiguration { // Job을 정의
      * Job과 1:M 관계
 2. BATCH_JOB_INSTANCE 테이블과 매핑
    * JOB_NAME(job)과 JOB_KEY(jobParameter 해시 값)가 동일한 데이터는 중복해서 저장할 수 없음
+
+> Job Parameter
+1. 기본 개념
+   * Job을 실행할 때 함께 포함되어 사용되는 파라미터를 가진 도메인 객체
+   * 하나의 Job에 존재할 수 있는 여러개의 JobInstance를 구분하기 위한 용도
+   * JobParameters와 JobInstance는 1:1 관계
+2. 생성 및 바인딩
+   * 애플리케이션 실행 시 주입
+     * Java -jar LogBatch.jar requestDate=20210101
+   * 코드로 생성
+     * JobParameterBuilder, DefaultJobParametersConverter
+   * SpEL이용
+     * @Value("#{jobParameter[requestDate]}", @JobScope, @StepScope 선언 필수)
+3. BATCH_JOB_EXECUTION_PARAM 테이블과 매핑
+    * JOB_EXECUTION과 1:M의 관계
