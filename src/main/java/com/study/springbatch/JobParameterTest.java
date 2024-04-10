@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-@Component
+//@Component
 public class JobParameterTest implements ApplicationRunner {
 
-    @Autowired
+    //@Autowired
     private JobLauncher jobLauncher;
 
-    @Autowired
+    //@Autowired
     private Job JobParameter;
 
     @Override

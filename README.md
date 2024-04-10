@@ -199,3 +199,16 @@ public class HelloJobConfiguration { // Job을 정의
      * @Value("#{jobParameter[requestDate]}", @JobScope, @StepScope 선언 필수)
 3. BATCH_JOB_EXECUTION_PARAM 테이블과 매핑
     * JOB_EXECUTION과 1:M의 관계
+
+> Job Execution
+1. 기본 개념
+ * JobInstance에 대한 한번의 시도를 의미하는 객체로서 Job 실행 중에 발생한 정보들을 저장하고 있는 객체
+   * 시작시간, 종료시간, 상태(시작됨, 왼료, 실패), 종료상태의 속성을 가짐
+ * JobInstance와 관계
+   * JobExecution은 `FAILED` 또는 `COMPLETED` 등의 Job의 실행 결과 상태를 가지고 있음
+   * JobExecution의 실행 상태가 `COMPLETED`면 JobInstance 실행이 완료된 것으로 간주해서 재 실행이 불가함
+   * JobExecution의 실행 상태가 `FAILED`면 JobInstance 실행이 완료되지 않은 것으로 간주해서 재실행이 가능함
+     * JobParameter가 동일한 값으로 Job을 실행할 지라도 JobInstance를 계속 실행할 수 있음
+   * JobExecution의 실행 상태 결과가 `COMPLETED` 될 때까지 하나의 JobInstance 내에서 여러 번의 시도가 생길 수 있음
+2. BATCH_JOB_EXECUTION 테이블과 매핑
+   * JobInstance와 JobExecution은 1:M의 관계로서 JobInstance에 대한 성공/실패의 내역을 가지고 있음
