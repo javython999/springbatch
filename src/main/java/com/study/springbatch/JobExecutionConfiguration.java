@@ -14,7 +14,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Map;
 
-@Configuration
+//@Configuration
 public class JobExecutionConfiguration {
 
     @Bean
