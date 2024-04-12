@@ -228,3 +228,17 @@ public class HelloJobConfiguration { // Job을 정의
      * Step 내에서 Job을 실행하도록 한다.
    * FlowStep
      * Step 내에서 Flow를 실행하도록 한다.
+
+> Step Execution
+1. 기본 개념
+   * Step에 대한 한번의 시도를 의미하는 객체로서, Step 실행중에 발생한 정보들을 저장하고 있는 객체
+     * 시작시간, 종료시간, 상태(시작됨, 완료됨, 실패), commit count, rollback count 등의 속성을 가짐
+   * Step이 매번 시도될 때마다 생성되며 각 Step 별로 생성된다.
+   * Job이 재시작 하더라도 이미 성공적으로 완료된 Step은 재실행되지 않고 실패한 Step만 실행된다.
+   * 이전 단계 Step이 실패해서 현재 Step을 실행하지 않았다면 Step Executin을 생성하지 않는다. Step이 실제로 시작됐을 때만 StepExecutin을 생성한다.
+   * Job Executin과의 관계
+     * Step의 StepExecution이 모두 정상적으로 완료되어야 JobExecution이 정상적으로 완료된다.
+     * Step의 StepExecution중 하나라도 실패하면 JobExecution은 실패한다.
+2. BATCH_STEP_EXECUTION 테이블과 매핑
+    * JobExecution과 StepExecution은 1:M의 관계
+    * 하나의 Job에 여려 개의 Step으로 구성 했을 경우 각 StepExecution은 하나의 JobExecution을 부모로 가진다
