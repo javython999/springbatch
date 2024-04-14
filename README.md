@@ -258,3 +258,15 @@ public class HelloJobConfiguration { // Job을 정의
    * processSkipCount: process에 실패해서 스킵된 횟수
    * ExitStatus: 실행결과를 나타내는 클래스로서 종료코드 포함(UNKNOWN, EXECUTION, COMPLETED, NOOP, FAILED, STOPPED)
    * StepExectuion: StepExectuion 객체 저장
+
+> Execution Context
+1. 기본 개념
+   * 프레임워크에서 유지 및 관리하는 키/값으로 컬렉션으로 StepExectuion 또는 JobExecution 객체의 상태(State)를 저장하는 공유 객체
+   * DB에 직렬화 한 값으로 저장됨 `{"key": value}`
+   * 공유 범위
+     * Step 범위 - 각 Step의 StepExecution에 저장되며 Step간 서로 공유 안됨
+     * Job 범위 - 각 Job의 JobExecution에 저장되며 Job 간 서로 공유 안되며 해당 Job의 Step 간 서로 공유됨
+   * Job 재시작시 임 ㅣ처리한 Row 데이터는 건너뛰고 이후로 수행하도록 할 때 상태 정보를 활용한다.
+2. 구조
+   * Map<String, object> map = new ConcurrentHashMap
+   * 유지, 관리에 필요한 키값 설정
