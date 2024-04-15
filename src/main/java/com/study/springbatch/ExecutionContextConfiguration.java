@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-@Configuration
+//@Configuration
 @RequiredArgsConstructor
 public class ExecutionContextConfiguration {
     private final ExecutionContextTasklet1 executionContextTasklet1;
@@ -21,7 +21,7 @@ public class ExecutionContextConfiguration {
     private final ExecutionContextTasklet4 executionContextTasklet4;
 
     @Bean
-    public Job BatchJob(JobRepository jobRepository, Step step1, Step step2, Step step3, Step step4) {
+    public Job batchJob(JobRepository jobRepository, Step step1, Step step2, Step step3, Step step4) {
         return new JobBuilder("ExecutionContextConfig", jobRepository)
                 .start(step1)
                 .next(step2)
