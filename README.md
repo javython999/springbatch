@@ -286,3 +286,33 @@ public class HelloJobConfiguration { // Job을 정의
    * In Memory 방식으로 설정 - MapJobRepositoryFactoryBean
      * 성능 등의 이유로 도메인 오브벡트를 굳이 데이터베이스에 저장하고 싶지 않은 경우
      * 보통 Test나 프로토타입의 빠른 개발이 필요할 때 사용
+
+> JobLauncher
+1. 기본 개념
+    * 배치 Job을 실행시키는 역할을 한다.
+    * Job과 Job Parameters를 인자로 받으며 요청된 배치 작업을 수행한 후 최종 client에게 JobExecutino을 반환함
+    * 스프링 부트 배치가 구동되면 JobLauncher 빈이 자동 생성 된다.
+    * Job 실행
+      * JobLauncher.run(Job, JobParameters)
+      * 스프링 부트 배치에는 JobLauncherApplicationRunner가 자동으로 JobLauncher를 실행시킨다.
+      * 동기적 실행
+        * taskExecutor를 SyncTaskExecutor로 설정할 경우 (기본값은 SyncTaskExecution을 반환)
+        * JobExecution을 획득하고 배치 처리를 최종 완료한 이후 Client에게 JobExecution을 반환
+        * 스케줄러에 의한 배치처리에 적합 함 - 배치처리시간이 길어도 상관없는 경우
+      * 비 동기적 실행
+        * taskExecutor가 SimpleAsyncTaskExecutor로 설정할 경우
+        * JobExecution을 획득한 후 Client에게 바로 JobExecution을 반환하고 배치처리를 완료한다.
+        * HTTP 요청에 의한 배치처리에 적합함 - 배치처리 시간이 길 경우 응답이 늦어지지 않도록 함.
+2. 구조
+    * 동기적 실행
+      1. Client -> JobLauncher.run()
+      2. JobLauncher -> Job.execute()
+      3. Job -> Step / tasklet 실행
+      4. Job return ExitStatus -> JobLauncher
+      5. JobLauncher return JobExecution -> Client
+    * 비 동기적 실행
+      1. Client -> JobLauncher.run()
+      2. JobLauncher return JobExecution(ExitStatus.UNKNOWN) -> Client
+      3. JobLauncher -> Job.execute()
+      4. Job -> Step / tasklet 실행
+      5. Job return ExitStatus -> JobLauncher
