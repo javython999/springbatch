@@ -18,11 +18,9 @@ import java.util.Date;
 @RestController
 public class JobLauncherController {
 
-    @Autowired
-    private Job JobLauncher;
+    //@Autowired private Job JobLauncher;
 
-    @Autowired
-    private JobLauncher jobLauncher;
+    //@Autowired private JobLauncher jobLauncher;
 
 
     @PostMapping("/batch")
@@ -34,7 +32,7 @@ public class JobLauncherController {
                 .toJobParameters();
 
 
-        jobLauncher.run(JobLauncher, jobParameters);
+        //jobLauncher.run(JobLauncher, jobParameters);
 
         return "batch completed";
     }

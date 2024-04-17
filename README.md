@@ -316,3 +316,31 @@ public class HelloJobConfiguration { // Job을 정의
       3. JobLauncher -> Job.execute()
       4. Job -> Step / tasklet 실행
       5. Job return ExitStatus -> JobLauncher
+***
+## 스프링 배치 실행 - Job
+> 배치 초기화 설정
+1. JobLauncherApplicationRunner
+    * Spring Batch 작업을 시작하는 ApplicationRunner로서 BatchAutoConfiguration에서 생성됨
+    * 스프링 부트에서 제공하는 ApplicationRunner의 구현체로 애플리케이션이 정상적으로 구동되자 마자 실행됨
+    * 기본적으로 Bean으로 등록된 모든 Job을 실행시킨다.
+2. BatchProperties
+   * Spring Batch의 환경 설정 클래스
+   * Job 이름, 스키마 초기화 설정, 테이블 Prefix 등의 값을 설정할 수 있다.
+   * application.properties or application.yml 파일에 설정함
+     ```yml
+     spring:
+        batch:
+          job:
+            names: ${job.name:NONE}
+          initialize-schema: Never
+          tablePrefix: SYSTEM
+     ```
+3. Job 실행 옵션
+    * 지정한 Batch Job만 실행하도록 할 수 있음
+    * spring.batch.job.names: ${job.name:NONE}
+    * 애플리케이션 실행시 Program arguments로 job 이름을 입력한다.
+      * --job.name=helloJob
+      * --job.name=helloJob,simpleJob (하나 이상의 job을 실행할 경우 쉼표로 구분해서 입력함)
+     
+
+     
