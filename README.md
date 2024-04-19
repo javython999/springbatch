@@ -357,3 +357,26 @@ public class HelloJobConfiguration { // Job을 정의
      * FlowJobBuilder
        * FlowJob을 생성하는 Builder 클래스
        * 내부적으로 FlowBuilder를 반환함으로써 Flow 실행과 관련된 여러 설정 API를 제공한다.
+
+> SimpleJob - 개념 및 API
+1. 기본 개념
+   * SimpleJob은 Step을 실행시키는 Job 구현체로서 SimpleJobBuilder에 의해 생성된다.
+   * 여러 단계의 Step으로 구성할 수 있으며 Step을 순차적으로 실행시킨다.
+   * 모든 Step의 실행이 성공적으로 완료되어야 Job이 성공적으로 완료된다.
+   * 맨 마지막에 실행한 Step의 BatchStatus가 Job의 최종 BatchStatus가 된다.
+2. 흐름
+   * 성공
+      * SimpleJob -> Step1 -> competed 
+      * SimpleJob -> Step2 -> competed
+      * SimpleJob -> competed
+   * 실패
+       * SimpleJob -> Step1 -> failed
+       * SimpleJob -> failed (step2는 실행되지 않음)
+3. API
+   * `start(Step)`: 처음 실행할 Step 설정, 최초 한번 설정, 이 메서드를 실행하면 SimpleJobBuilder를 반환
+   * `next(Step)`: 다음에 실행할 Step 설정, 횟수는 제한이 없으며 모든 next()의 Step이 종료가 되면 Job이 종료된다.
+   * `incremente(JobParametersIncrementer)`: JobParameter의 값을 자동 증가해 주는 JobParameterIncrementer 설정
+   * `preventRestarte(true)`: Job의 재시작 가능 여부 설정, 기본 값은 true
+   * `validator(JobParameterValidator)`: JobParameter를 실행하기 전에 올바른 구성이 되었는지 검증하는 JobParametersValidator 설정
+   * `listen(JobExecutorListener)`: Job 라이프 사이클의 특정 시점에 콜백 제공박도록 JobExecutionListener 설정
+   * `build()`: SimpleJob 생성
