@@ -380,3 +380,10 @@ public class HelloJobConfiguration { // Job을 정의
    * `validator(JobParameterValidator)`: JobParameter를 실행하기 전에 올바른 구성이 되었는지 검증하는 JobParametersValidator 설정
    * `listen(JobExecutorListener)`: Job 라이프 사이클의 특정 시점에 콜백 제공박도록 JobExecutionListener 설정
    * `build()`: SimpleJob 생성
+
+> validator()
+1. 기본 개념
+   * Job이 실행에 꼭 필요한 파라미터를 검증하는 용도
+   * DefaultJobParametersValidator 구현체를 지원하며, 좀 더 복잡한 제약 조건이 있다면 인터페이스를 구현할 수도 있음
+2. 구조
+   * JobParameter 값을 매개변수로 받아 검증함
