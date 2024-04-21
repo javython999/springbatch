@@ -387,3 +387,27 @@ public class HelloJobConfiguration { // Job을 정의
    * DefaultJobParametersValidator 구현체를 지원하며, 좀 더 복잡한 제약 조건이 있다면 인터페이스를 구현할 수도 있음
 2. 구조
    * JobParameter 값을 매개변수로 받아 검증함
+
+> preventRestart()
+1. 기본 개념
+   * Job의 재시작 여부를 설정
+   * 기본 값은 true이며 false로 설정시 '이 Job은 재시작을 지원하지 않는다.'라는 의미
+   * Job이 실패해도 재시작이 안되며 Job을 재시작하려고 하면 JobRestartException이 발생
+   * 재시작과 관련 있는 기능으로 Job을 처음 실행하는 것과는 아무런 상관 없음
+2. 흐름도
+   * Job -> exsit Job Execution ?
+   * yes -> preventRestart? 
+     * false -> JobRestartException 
+     * true  -> JobInstance -> JobExecution -> Business 
+   * no  -> JobInstance -> JobExecution -> Business
+
+> incrementer()
+1. 기본 개념
+   * JobParameters에서 필요한 값을 증가시켜 다음에 사용될 JobParameters 오브젝트를 리턴
+   * 기존의 JobParameter 변경없이 Job을 여러 번 시작하고자 할 때
+   * RunIdIncrementer 구현체를 지원하며 인터페이스를 직접 구현할 수 있음
+2. 구조
+   * JobParametersIncrementer
+     * JobParameters getNext(@Nullalbe JobParameters parameters);
+
+> SimpleJob 아키텍처
