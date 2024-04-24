@@ -3,7 +3,6 @@ package com.study.springbatch;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.job.flow.*;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.support.ListItemReader;
@@ -13,8 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 @Configuration
 public class TaskletStepConfiguration {
@@ -30,13 +27,10 @@ public class TaskletStepConfiguration {
     @Bean
     public Step step1(JobRepository jobRepository, PlatformTransactionManager tx) {
         return new StepBuilder("taskletJob-step1", jobRepository)
-                .tasklet((contribution, chunkContext) -> {
-                    System.out.println("taskletJob-step1 was executed");
-                    return RepeatStatus.FINISHED;
-                }, tx).build();
+                .tasklet(new CustomTasklet(), tx).build();
     }
 
-       @Bean
+   @Bean
     public Step step2(JobRepository jobRepository, PlatformTransactionManager tx) {
         return new StepBuilder("taskletJob-step2", jobRepository)
                 .chunk(10, tx)
@@ -45,4 +39,5 @@ public class TaskletStepConfiguration {
                 .writer(System.out::println)
                 .build();
     }
+
 }
