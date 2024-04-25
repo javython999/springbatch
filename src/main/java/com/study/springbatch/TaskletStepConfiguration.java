@@ -13,7 +13,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Arrays;
 
-@Configuration
+//@Configuration
 public class TaskletStepConfiguration {
 
     @Bean
