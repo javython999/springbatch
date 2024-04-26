@@ -12,19 +12,22 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 //@Configuration
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class DBJobConfiguration {
 
+    private final JobRepository jobRepository;
+    private final PlatformTransactionManager tx;
+
     @Bean
-    public Job job(JobRepository jobRepository, Step step1, Step step2) {
+    public Job job() {
         return new JobBuilder("job", jobRepository)
-                .start(step1)
-                .next(step2)
+                .start(step1())
+                .next(step2())
                 .build();
     }
 
     @Bean
-    public Step step1(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step step1() {
         return new StepBuilder( "step1", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println("====================================");
@@ -35,7 +38,7 @@ public class DBJobConfiguration {
     }
 
     @Bean
-    public Step step2(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step step2() {
         return new StepBuilder( "step2", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println("====================================");

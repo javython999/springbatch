@@ -12,20 +12,23 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 //@Configuration
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class HelloJobConfiguration {
 
+    private final JobRepository jobRepository;
+    private final PlatformTransactionManager tx;
+
     @Bean
-    public Job helloJob(JobRepository jobRepository, Step helloStep1, Step helloStep2, Step helloStep3) {
+    public Job helloJob() {
         return new JobBuilder("helloJob", jobRepository)
-                .start(helloStep1)
-                .next(helloStep2)
-                .next(helloStep3)
+                .start(helloStep1())
+                .next(helloStep2())
+                .next(helloStep3())
                 .build();
     }
 
     @Bean
-    public Step helloStep1(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step helloStep1() {
         return new StepBuilder( "helloStep1", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println("====================================");
@@ -36,7 +39,7 @@ public class HelloJobConfiguration {
     }
 
     @Bean
-    public Step helloStep2(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step helloStep2() {
         return new StepBuilder( "helloStep2", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println("====================================");
@@ -47,7 +50,7 @@ public class HelloJobConfiguration {
     }
 
     @Bean
-    public Step helloStep3(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step helloStep3() {
         return new StepBuilder("helloStep3", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println("====================================");

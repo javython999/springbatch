@@ -1,5 +1,6 @@
 package com.study.springbatch;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
@@ -11,14 +12,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 //@Configuration
+@RequiredArgsConstructor
 public class SimpleJobConfiguration {
 
+    private final JobRepository jobRepository;
+    private final PlatformTransactionManager tx;
+
     @Bean
-    public Job batchJob(JobRepository jobRepository, Step step1, Step step2, Step step3) {
+    public Job batchJob() {
         return new JobBuilder("SimpleJobConfiguration", jobRepository)
-                .start(step1)
-                .next(step2)
-                .next(step3)
+                .start(step1())
+                .next(step2())
+                .next(step3())
                 .incrementer(new RunIdIncrementer())
                 .validator(new JobParametersValidator() {
                     @Override
@@ -42,7 +47,7 @@ public class SimpleJobConfiguration {
     }
 
     @Bean
-    public Step step1(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step step1() {
         return new StepBuilder("SimpleJobConfiguration-step1", jobRepository)
                 .tasklet(((contribution, chunkConext) -> {
                     System.out.println("SimpleJobConfiguration-step1 was executed");
@@ -51,7 +56,7 @@ public class SimpleJobConfiguration {
     }
 
     @Bean
-    public Step step2(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step step2() {
         return new StepBuilder("SimpleJobConfiguration-step2", jobRepository)
                 .tasklet(((contribution, chunkConext) -> {
                     System.out.println("SimpleJobConfiguration-step2 was executed");
@@ -60,7 +65,7 @@ public class SimpleJobConfiguration {
     }
 
     @Bean
-    public Step step3(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step step3() {
         return new StepBuilder("SimpleJobConfiguration-step3", jobRepository)
                 .tasklet(((contribution, chunkConext) -> {
                     System.out.println("SimpleJobConfiguration-step3 was executed");

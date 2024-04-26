@@ -1,5 +1,6 @@
 package com.study.springbatch;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.DefaultJobParametersValidator;
@@ -12,21 +13,25 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 //@Configuration
+@RequiredArgsConstructor
 public class ValidatorConfiguration {
 
+    private final JobRepository jobRepository;
+    private final PlatformTransactionManager tx;
+
     @Bean
-    public Job validatorJob(JobRepository jobRepository, Step step1, Step step2) {
+    public Job validatorJob() {
 
         return new JobBuilder("ValidatorJob", jobRepository)
-                .start(step1)
-                .next(step2)
+                .start(step1())
+                .next(step2())
                 //.validator(new CustomJobParametersValidator())
                 .validator(new DefaultJobParametersValidator(new String[] {"name", "date"}, new String[] {"count"}))
                 .build();
     }
 
     @Bean
-    public Step step1(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step step1() {
         return new StepBuilder("ValidatorJob-step1", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println("ValidatorJob-step1 was executed");
@@ -35,7 +40,7 @@ public class ValidatorConfiguration {
     }
 
     @Bean
-    public Step step2(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step step2() {
         return new StepBuilder("ValidatorJob-step2", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println("ValidatorJob-step2 was executed");

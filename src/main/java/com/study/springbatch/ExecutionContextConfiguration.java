@@ -19,37 +19,39 @@ public class ExecutionContextConfiguration {
     private final ExecutionContextTasklet2 executionContextTasklet2;
     private final ExecutionContextTasklet3 executionContextTasklet3;
     private final ExecutionContextTasklet4 executionContextTasklet4;
+    private final JobRepository jobRepository;
+    private final PlatformTransactionManager tx;
 
     @Bean
-    public Job batchJob(JobRepository jobRepository, Step step1, Step step2, Step step3, Step step4) {
+    public Job batchJob() {
         return new JobBuilder("ExecutionContextConfig", jobRepository)
-                .start(step1)
-                .next(step2)
-                .next(step3)
-                .next(step4)
+                .start(step1())
+                .next(step2())
+                .next(step3())
+                .next(step4())
                 .build();
     }
 
     @Bean
-    public Step step1(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step step1() {
         return new StepBuilder("ExecutionContext-Step1", jobRepository)
                 .tasklet(executionContextTasklet1, tx).build();
     }
 
     @Bean
-    public Step step2(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step step2() {
         return new StepBuilder("ExecutionContext-Step2", jobRepository)
                 .tasklet(executionContextTasklet2, tx).build();
     }
 
     @Bean
-    public Step step3(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step step3() {
         return new StepBuilder("ExecutionContext-Step3", jobRepository)
                 .tasklet(executionContextTasklet3, tx).build();
     }
 
     @Bean
-    public Step step4(JobRepository jobRepository, PlatformTransactionManager tx) {
+    public Step step4() {
         return new StepBuilder("ExecutionContext-Step4", jobRepository)
                 .tasklet(executionContextTasklet4, tx).build();
     }
