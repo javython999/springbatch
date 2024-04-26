@@ -495,3 +495,20 @@ public interface Tasklet {
    * 실행 마다 유효성을 검증하는 Step이나 사전 작업이 꼭 필요한 Step 등
    * 기본적으로 COMPLETED 상태를 가진 Step이나 사전 작업이 꼭 필요한 Step 등
    * allow-start-if-complete가 true로 설정된 step은 항상 실행한다.
+
+> JobStep
+1. 기본 개념
+    * Job이 속하는 Step 중 외부의 Job을 포함하고 있는 Step
+    * 외부의 Job이 실패하면 해당 Step이 실패하므로 결국 최종 기본 Job도 실패한다.
+    * 모든 메타데이터는 기본 Job과 외부 Job 별로 각각 저장된다.
+    * 커다란 시스템을 작은 모듈로 쪼개고 job의 흐름을 관리하고자 할 때 사용할 수 있다.
+2. API 소개
+```java
+public Step jobStep() {
+    return StepBuilderFactory.get("jobStep")            // StepBuilder를 생성하는 팩토리, Step의 이름을 매개변수로 받음
+            .job(job)                                   // JobStep 내에서 실행될 Job 설정 JobStepBuilder 반환
+            .launcher(JobLauncher)                      // Job을 실행할 JobLauncher 설정
+            .parametersExtractor(JobParametersExtractor)// Step의 ExecutionContext를 Job이 실행되는 데 필요한 JobParameters로 변환
+            .build();                                   // JobStep을 생성
+}                           
+```
