@@ -561,3 +561,24 @@ public Job batchJob() {
             .build();
 }
 ```
+> Transition - 배치상태 유형(BatchStatus / ExitStatus / FlowExecutionStatus)
+* BatchStatus
+  * JobExecution과 StepExecution의 속성으로 Job과 Step의 종료 후 최종 결과 상태가 무엇인지 정의
+  * SimpleJob
+    * 마지막 Step의 BatchStatus 값을 Job의 최종 BatchStatus 값으로 반영
+    * Step이 실패할 경우 해당 Step이 마지막 Step이 된다.
+  * FlowJob
+    * Flow내 Step의 ExitStatus 값을 FlowExecutionStatus 값으로 저장
+    * 마짐가 Flow의 FlowExecutionStatus 값을 Job의 최종 BatchStatus 값으로 반영
+* COMPLETE, STARTING, STARTED, STOPPING, STOPPED, FAILED, ABANDONED, UNKNOWN
+* ABANDONED는 처리를 완료했지만 성공하지 못한 단계와 재시작시 건너 뛰어야하는 단계
+* ExitStatus
+  * JobExectuion과 StepExecution의 속성으로 Job과 Step의 실행 후 어떤 상태로 종료되었는지 정의
+  * 기본적으로 ExitStatus는 BatchStatus와 동일한 값으로 설정된다.
+  * SimpleJob
+    * 마지막 Step의 ExitStatus 값을 Job의 최종 ExitStatus 값으로 반영
+  * FlowJob
+    * Flow내 Step의 ExitStatus 값을 Job의 최종 ExitStatus 값으로 반영
+    * 마지막 Flow의 FlowExecutionStatus 값을 Job의 최종 ExitStatus 값으로 반영
+  * UNKNOWN, EXECUTING, COMPLETED, NOOP, FAILED, STOPPED
+  
