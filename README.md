@@ -618,3 +618,22 @@ public Job batchJob() {
     * stop() transition과 기본 흐름은 동일
     * 특정 step에서 작업을 중단하도록 설정하면 중단 이전의 Step만 `COMPLETED` 저장되고 이후의 step은 실행되지 않고 `STOPPED` 상태로 Job 종료
     * Job이 다시 실행됐을 때 실행해야 할 step을 restart인자로 넘기면 이전에 `COMPLETED`로 저장된 step은 건너뛰고 중단 이후 step부터 시작한다.
+
+> 사용자 정의 ExitStatus
+1. 기본 개념
+   * ExitStatus에 존재하지 않은 exitCode를 새롭게 정의해서 설정
+   * StepExecutionListener의 afterStep() 메서드에서 Custom exitCode 생성후 새로운 ExitStatus 반환
+   * Step 실행 후 완료 시점에서 현재 exitCode를 사용자 정의 exitCode로 수정할 수 있음
+
+```java
+static class PassCheckingListener extends StepExcutionListenerSupport {
+    public ExitStatus afterStep(StepExcution stepExcution) {
+        String exitCode = stepExcution.getExitStatus().getExitCode();
+        if (!exitCode.equals(ExitStatus.FAILED.getExitCode())) {
+            return new ExitStatus("DO PASS");
+        } else {
+            return null;
+        }
+    }
+}
+```
