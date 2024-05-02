@@ -1,12 +1,11 @@
 package com.study.springbatch;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.job.flow.JobExecutionDecider;
-import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -16,53 +15,55 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 //@Configuration
 @RequiredArgsConstructor
-public class JobExecutionDeciderConfiguration {
+public class FlowJobConfiguration3 {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager tx;
 
+
     @Bean
-    public Job jobExecutionDeciderJob() {
-        return new JobBuilder("JobExecutionDecider-Job", jobRepository)
-                .incrementer(new RunIdIncrementer())
-                .start(step())
-                .next(decider())
-                .from(decider()).on("ODD").to(oddStep())
-                .from(decider()).on("EVEN").to(evenStep())
+    public Job flowJob() {
+        return new JobBuilder("flowJob", jobRepository)
+                .start(flow())
+                .next(step3())
                 .end()
                 .build();
     }
 
     @Bean
-    public JobExecutionDecider decider() {
-        return new CustomJobExecutionDecider();
+    public Flow flow() {
+        FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flow");
+        flowBuilder.start(step1())
+                .next(step2())
+                .end();
+        return flowBuilder.build();
     }
 
     @Bean
-    public Step step() {
-        return new StepBuilder("JobExecutionDecider-step", jobRepository)
+    public Step step1() {
+        return new StepBuilder("flowJob-step1", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
-                    System.out.println("JobExecutionDecider-step was executed");
+                    System.out.println("flowJob-step1 was executed");
                     return RepeatStatus.FINISHED;
                 }, tx)
                 .build();
     }
 
     @Bean
-    public Step oddStep() {
-        return new StepBuilder("JobExecutionDecider-oddStep", jobRepository)
+    public Step step2() {
+        return new StepBuilder("flowJob-step2", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
-                    System.out.println("JobExecutionDecider-oddStep was executed");
+                    System.out.println("flowJob-step2 was executed");
                     return RepeatStatus.FINISHED;
                 }, tx)
                 .build();
     }
 
     @Bean
-    public Step evenStep() {
-        return new StepBuilder("JobExecutionDecider-evenStep", jobRepository)
+    public Step step3() {
+        return new StepBuilder("flowJob-step3", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
-                    System.out.println("JobExecutionDecider-evenStep was executed");
+                    System.out.println("flowJob-step3 was executed");
                     return RepeatStatus.FINISHED;
                 }, tx)
                 .build();

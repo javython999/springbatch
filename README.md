@@ -642,3 +642,35 @@ static class PassCheckingListener extends StepExcutionListenerSupport {
     * ExitStatus를 조작하거나 StepExecutionListener를 등록할 필요 없이 Transition 처리를 위한 전용 클래스
     * Step과 Transition 역할을 명확히 분리해서 설정 할 수 있음
     * Step과 ExitStatus가 아닌 JobExecutionDecider의 FlowExecutionStatus 상태값을 새롭게 설정해서 반환함
+
+> SimpleFlow 개념 및 API
+1. 기본 개념
+   * 스프링 배치에서 제공하는 Flow의 구현체로서 각 요소 (Step, Flow, JobExecutionDecider)들을 담고 있는 State를 실행시키는 도메인 객체
+   * FlowBuilder를 사용해서 생성하며 Transition과 조합하여 여러 개의 Flow 및 중첩 Flow를 만들어 Job을 구성할 수 있다.
+2. 구조
+
+```yml
+Flow
+  getName()   # Flow 이름 조회
+  State getState(String stateName)  # State명으로 State 반환
+  FlowExecution start(FlowExecution executor) # Flow를 실행시키는 Start 메소드, FlowExecutor를 넘겨주어 실행을 위임함, 실행후 FlowExecution을 반환
+  FlowExecution resume(String stateName, FlowExecutor executor) # 다음에 실행할 State를 구해서 FlowExecutor에게 실행을 위임함
+  Collection<State> getState()  # Flow가 가지고 있는 모든 State를 Collection 타입을 반환
+```
+```yml
+SimpleFlow
+  String name # Flow 이름
+  State startState # State들 중에서 처음 실행할 State
+  Map<String, Set<StateTransition>> transitionMap # State명으로 매핑되어있는 Set<StateTransition>
+  List<StateTransition> stateTransitions  # State명으로 매핑되어있는 State 객체
+  Comparator<StateTransition> stateTransitionComparator # State와 Transition 정보를 가지고 있는 StateTransition 리스트
+```
+```java
+public Job batchJob() {
+    return new JobBuilder("flowJob", jobRepository)
+            .start(flow1())                 // Flow를 정의하여 설정함
+            .on("COMPLETE").to(flow2())     // Flow를 Transition과 함께 구성
+            .end()                          // SimpleFlow객체 생성
+            .build();                       // FlowJob객체 생성
+}
+```
