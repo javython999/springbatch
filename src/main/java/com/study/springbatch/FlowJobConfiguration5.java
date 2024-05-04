@@ -14,9 +14,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-//@Configuration
+@Configuration
 @RequiredArgsConstructor
-public class FlowJobConfiguration4 {
+public class FlowJobConfiguration5 {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager tx;
@@ -25,40 +25,22 @@ public class FlowJobConfiguration4 {
     @Bean
     public Job flowJob() {
         return new JobBuilder("flowJob", jobRepository)
-                .start(flow1())
+                .start(step1())
                     .on("COMPLETED")
-                    .to(flow2())
-                .from(flow1())
+                    .to(step2())
+                .from(step1())
                     .on("FAILED")
-                    .to(flow3())
+                    .to(flow())
                 .end()
                 .build();
     }
 
     @Bean
-    public Flow flow1() {
+    public Flow flow() {
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flow1");
-        flowBuilder.start(step1())
-                .next(step2())
-                .end();
-        return flowBuilder.build();
-    }
-
-    @Bean
-    public Flow flow2() {
-        FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flow2");
-        flowBuilder.start(flow3())
-                .next(step5())
-                .next(step6())
-                .end();
-        return flowBuilder.build();
-    }
-
-    @Bean
-    public Flow flow3() {
-        FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flow3");
-        flowBuilder.start(step3())
-                .next(step4())
+        flowBuilder.start(step2())
+                .on("*")
+                .to(step3())
                 .end();
         return flowBuilder.build();
     }
@@ -68,7 +50,9 @@ public class FlowJobConfiguration4 {
         return new StepBuilder("flowJob-step1", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println("flowJob-step1 was executed");
-                    return RepeatStatus.FINISHED;
+                    contribution.setExitStatus(ExitStatus.FAILED);
+                    throw new RuntimeException("FAILED");
+                    //return RepeatStatus.FINISHED;
                 }, tx)
                 .build();
     }
@@ -78,8 +62,7 @@ public class FlowJobConfiguration4 {
         return new StepBuilder("flowJob-step2", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println("flowJob-step2 was executed");
-                    throw new RuntimeException("FAILED");
-                    //return RepeatStatus.FINISHED;
+                    return RepeatStatus.FINISHED;
                 }, tx)
                 .build();
     }
@@ -94,33 +77,5 @@ public class FlowJobConfiguration4 {
                 .build();
     }
 
-    @Bean
-    public Step step4() {
-        return new StepBuilder("flowJob-step4", jobRepository)
-                .tasklet((contribution, chunkContext) -> {
-                    System.out.println("flowJob-step4 was executed");
-                    return RepeatStatus.FINISHED;
-                }, tx)
-                .build();
-    }
 
-    @Bean
-    public Step step5() {
-        return new StepBuilder("flowJob-step5", jobRepository)
-                .tasklet((contribution, chunkContext) -> {
-                    System.out.println("flowJob-step5 was executed");
-                    return RepeatStatus.FINISHED;
-                }, tx)
-                .build();
-    }
-
-    @Bean
-    public Step step6() {
-        return new StepBuilder("flowJob-step6", jobRepository)
-                .tasklet((contribution, chunkContext) -> {
-                    System.out.println("flowJob-step6 was executed");
-                    return RepeatStatus.FINISHED;
-                }, tx)
-                .build();
-    }
 }
