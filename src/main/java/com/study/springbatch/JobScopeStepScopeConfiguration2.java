@@ -2,7 +2,6 @@ package com.study.springbatch;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -16,9 +15,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-//@Configuration
+@Configuration
 @RequiredArgsConstructor
-public class JobScopeStepScopeConfiguration {
+public class JobScopeStepScopeConfiguration2 {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager tx;
@@ -27,8 +26,8 @@ public class JobScopeStepScopeConfiguration {
     public Job JobScopeStepScopeJob() {
         return new JobBuilder("JobScopeStepScopeJob", jobRepository)
                 .start(step1(null))
-                .next(step2())
-                .listener(new JobListener())
+                //.next(step2())
+                //.listener(new JobListener())
                 .build();
     }
 
