@@ -723,3 +723,13 @@ public Step flowStep() {
     3. JobContext, StepContext
        * 스프링 컨테이너에서 생성된 빈을 저장하는 컨텍스트 역할
        * Job의 실행 시점에 프록시 객체가 실제 빈을 참조할 때 사용됨
+
+## 스프링 배치 청크 프로세스 이해
+> Chunk
+1. 기본 개념
+    * Chunk란 여러 개의 아이템을 묶은 하나의 덩어리, 블록을 의미한다.
+    * 한번에 하나씩 아이템을 입력 받아 Chunk 단위의 덩어리로 만든 후 Chunk 단위로 트랜잭션을 처리한다. 즉 Chunk 단위의 Commit과 Rollback이 이루어진다.
+    * 일반적으로 대용량 데이터를 한번에 처리하는 것이 아닌 Chunk 단위로 쪼개어서 더 이상 처리할 데이터가 없을 때까지 반복해서 입출력하는데 사용된다.
+    * Chunk<I> vs Chunk<O>
+      * Chunk<I>는 ItemReader로 읽은 하나의 아이템을 Chunk에서 정한 개수만큼 반복해서 저장하는 타입
+      * Chunk<O>는 ItemReader로부터 전달받은 Chunk<I>를 참조해서 ItemProcessor에 적절하게 가공, 필터링한 다음 ItemWriter에 전달하는 타입
