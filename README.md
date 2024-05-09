@@ -733,3 +733,27 @@ public Step flowStep() {
     * Chunk<I> vs Chunk<O>
       * Chunk<I>는 ItemReader로 읽은 하나의 아이템을 Chunk에서 정한 개수만큼 반복해서 저장하는 타입
       * Chunk<O>는 ItemReader로부터 전달받은 Chunk<I>를 참조해서 ItemProcessor에 적절하게 가공, 필터링한 다음 ItemWriter에 전달하는 타입
+
+> ChunkOrientedTasklet 개념 및 API
+1. 기본 개념
+    * ChunkOrientedTasklet은 스프링 배치에서 제공하는 Tasklet의 구현체로서 Chunk 지향 프로세싱을 담당하는 도메인 객체
+    * ItemReader, ItemWriter, ItemProcessor를 사용해 Chunk 기반의 데이터 입축력 처리를 담당한다.
+    * TaskletStep에 의해서 반복적으로 실행되며 ChunkOrientedTasklet 이 실행 될 때마다 매번 새로운 트랜잭션이 생성되어 처리가 이루어진다.
+    * execption이 발생할 경우, 해당 Chunk는 롤백 되며 이전에 커밋한 Chunk는 완료된 상태가 유지된다.
+    * 내부적으로 ItemReader를 핸들링하는 ChunkProvider와 ItemProcessor, ItemWirter를 핸들링하는 ChunkProcessor 타입의 구현체를 가진다.
+
+2. API
+```java
+public Step chunkStep() {
+    return stepBuilderFactory.get("chunkStep")
+            .<I, O> chunk(10)                   // chunk size 설정, chunkSize는 commit interval을 의미함, input, output 제네릭타입 설정
+            .<I, O> chunk(CompletionPolicy)     // chunk 프로세스를 완료하기 위한 정책 설정 클래스 지정
+            .reader(itemReader())               // 소스로부터 item을 읽거나 가져오는 itemReader 구현체 설정
+            .wirter(itemWriter())               // item을 목적지에 쓰거나 보내기 위한 itemWriter 구현체 설정
+            .processor(itemProcessor())         // item을 변형, 가공, 필터링 하기 위한 itemProcessor 구현체 설정
+            .stream(ItemStream())               // 재시작 데이터를 관리하는 콜백에 대한 스트림 등록
+            .readerIsTransactionQueue()         // Item이 JMS, MessageQueueServer와 같은 트랜잭션 외부에서 읽혀지고 캐시할 것인지 여부, 기본 값은 false
+            .listener(ChunkListener)            // chunk 프로세스가 진행되는 특정 시점에 콜백 제공받도록 chunkListener 설정
+            .build();
+}
+```

@@ -17,9 +17,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Arrays;
 
-//@Configuration
+@Configuration
 @RequiredArgsConstructor
-public class ChunkConfiguration {
+public class ChunkOrientedTaskletConfiguration {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager tx;
@@ -27,7 +27,7 @@ public class ChunkConfiguration {
 
     @Bean
     public Job chunkJob() {
-        return new JobBuilder("ChunkJob", jobRepository)
+        return new JobBuilder("ChunkOrientedJob", jobRepository)
                 .start(step1())
                 .next(step2())
                 .build();
@@ -35,15 +35,15 @@ public class ChunkConfiguration {
 
     @Bean
     public Step step1() {
-        return new StepBuilder("ChunkJob-step1", jobRepository)
-                .<String, String>chunk(5,  tx)
-                .reader(new ListItemReader<>(Arrays.asList("item1", "item2", "item3", "item4", "item5")))
+        return new StepBuilder("ChunkOrientedJob-step1", jobRepository)
+                .<String, String>chunk(2,  tx)
+                .reader(new ListItemReader<>(Arrays.asList("item1", "item2", "item3", "item4", "item5", "item6")))
                 .processor(new ItemProcessor<String, String>() {
                     @Override
                     public String process(String item) throws Exception {
                         Thread.sleep(500);
                         System.out.println("item = " + item);
-                        return "my " + item;
+                        return "my_" + item;
                     }
                 })
                 .writer(new ItemWriter<String>() {
@@ -58,7 +58,7 @@ public class ChunkConfiguration {
 
     @Bean
     public Step step2() {
-        return new StepBuilder("ChunkJob-step2", jobRepository)
+        return new StepBuilder("ChunkOrientedJob-step2", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println("step2 was executed");
                     return RepeatStatus.FINISHED;
