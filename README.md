@@ -757,3 +757,66 @@ public Step chunkStep() {
             .build();
 }
 ```
+> ChunkProvider    
+1. 기본 개념
+   * ItemReader를 사용해서 소스로부터 아이템을 Chunk size 만큼 읽어서 Chunk 단위로 만들어서 제공하는 도메인 객체
+   * Chunk<I>를 만들고 내부적으로 반복문을 사용해서 ItemReader.read()를 계속 호출하면서 item을 Chunk에 쌓는다.
+   * 외부로부터 ChunkProvider가 호출 될 때마다 항상 새로운 Chunk가 생성된다.
+   * 반복문 종료 시점
+     * Chunk size 만큼 item을 읽으면 반복문 종료되고 ChunkProcessor로 넘어감
+     * ItemReader가 읽은 item이 null일 경우 반복문 종료 및 해당 Step 반복문까지 종료
+   * 기본 구현체로서 SimpleChunkProvider와 FaultTolerantChunkProvider가 있다.
+
+> ChunkProcessor
+1. 기본 개념
+   * ItemProcessor를 사용해서 Item을 변형, 가공, 필터링하고 ItemWirter를 사용해서 Chunk 데이터를 저장 출력한다.
+   * Chunk<O>를 만들고 앞에서 넘어온 Chunk<I>의 item을 한 건씩 처리한 후 Chunk<O>에 저장한다.
+   * 외부로부터 ChunkProcessor가 호출될 때마다 항상 새로운 Chunk가 생성된다.
+   * ItemProcessor는 설정 시 선택사항으로 만약 객체가 존재하지 않을 경우 ItemReader에서 읽은 item 그대로가 Chunk<O>에 저장된다.
+   * ItemProcessor 처리가 완료되면 Chunk<O>에 있는 List<item>을 ItemWriter에게 전달한다.
+   * ItemWriter는 Chunk size 만큼 데이터를 Commit 처리하기 때문에 Chunk size는 곧 Commit Interval이 된다.
+   * 기본 구현체로서 SimpleChunkProcessor와 FaultTolerantChunkProcessor가 있다.
+
+> ItemReader
+1. 기본 개념
+   * 다양한 입력으로부터 데이터를 읽어서 제공하는 인터페이스
+     * 플랫(Flat) vkdlf - csv, txt(고정 위치로 정의된 데이터 필드나 특수문자로 구별된 데이터의 행)
+     * xml, Json
+     * DataBase
+     * JMS, RabbitMQ와 같은 Message Queuing 서비스
+     * Costom Reader - 구현시 멀티스레드 환경에서 스레드에 안전하게 구현할 필요가 있음
+   * ChunkOrientedTasklet 실행 시 필수적 요소러 설정해야 한다.
+2. 구조
+    * 다수의 구현체들이 ItemReader와 ItemStream 인터페이스를 동시에 구현하고 있음
+    * ExecutionContext에 read와 관련된 여러가지 상태 정보를 저장해서 재시작 시 다시 참조 하도록 
+
+> ItemWriter
+1. 기본 개념
+   * Chunk 단위로 데이터를 받아 일괄 출력 작업을 위한 인터페이스
+     * 플랫(Flat) 파일 - csv, txt
+     * DataBase
+     * JMS, RabbitMQ와 같은 Message Queuing 서비스
+     * Mail Service
+     * Custom Writer
+   * 아이템 하나가 아닌 아이템 리스트를 전달 받는다.
+   * ChunkOrientedTasklet 실행시 필수적 요소로 설정해야 한다.
+2. 구조
+   * void write(List<? extends T> items)
+     * 출력 데이터를 아이템 리스트로 받아 처리한다.
+     * 출력이 완료되고 트랜잭션이 종료되면 새로운 Chunk 단위 프로세스로 이동한다.
+
+> ItemProcessor
+1. 기본 개념
+   * 데이터를 출력하기 전에 데이터를 가공, 변형, 필터링 하는 역할
+   * ItemReader 및 ItemWriter와 분리되어 비즈니스 로직을 구현할 수 있다.
+   * ItemReader로부터 받은 아이템들을 특정 타입으로 변호나해서 ItemWriter에 넘겨줄 수 있다.
+   * ItemReader로부터 받은 아이템들 중 필터과정을 거쳐 원하는 아이템들만 ItemWriter에게 넘겨줄 수 있다.
+     * ItemProcessor에서 process() 실행결과 null을 반환하면 Chunk<O>에 저장되지 않기 때문에 결국 ItemWriter에 전달되지 않는다.
+   * ChunkOrientedTasklet 실행 시 선택적 요소이기 때문에 청크 기반 프로세싱에 ItemProcessor 단계가 반드시 필요한 것은 아니다.
+2. 구조
+   * O processor
+     * `<I>` 제네릭은 ItemReader에게 받을 데이터 타입 지정
+     * `<O>` 제네릭은 ItemWriter에게 보낼 데이터 타입 지정
+     * 아이템 하나씩 가공 처리하며 null 리턴할 경우 해당 아이템은 Chunk<O>에 저장되지 않음
+   * ItemStream을 구현하지 않는다.
+   * 거의 대부분 Customizing 해서 사용하기 때문에 기본적으로 제공되는 구현체가 적다.
