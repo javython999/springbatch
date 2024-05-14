@@ -7,4 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class Customer {
     private String name;
+    private int age;
+    private int year;
 }
