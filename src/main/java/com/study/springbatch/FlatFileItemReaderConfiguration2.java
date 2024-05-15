@@ -10,6 +10,8 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
@@ -17,9 +19,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
-//@Configuration
+@Configuration
 @RequiredArgsConstructor
-public class FlatFileItemReaderConfiguration {
+public class FlatFileItemReaderConfiguration2 {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager tx;
@@ -58,18 +60,17 @@ public class FlatFileItemReaderConfiguration {
                 .build();
     }
 
+
     @Bean
     public ItemReader itemReader() {
-        FlatFileItemReader<Customer> itemReader = new FlatFileItemReader<>();
-
-        itemReader.setResource(new ClassPathResource("/customers.csv"));
-
-        DefaultLineMapper<Customer> lineMapper = new DefaultLineMapper<>();
-        lineMapper.setLineTokenizer(new DelimitedLineTokenizer());
-        lineMapper.setFieldSetMapper(new CustomerFieldSetMapper());
-
-        itemReader.setLineMapper(lineMapper);
-        itemReader.setLinesToSkip(1);
-        return itemReader;
+        return new FlatFileItemReaderBuilder<Customer>()
+                .name("flatfile")
+                .resource(new ClassPathResource("/customers.csv"))
+                .fieldSetMapper(new BeanWrapperFieldSetMapper<>())
+                .targetType(Customer.class)
+                .linesToSkip(1)
+                .delimited().delimiter(",")
+                .names("name", "age", "year")
+                .build();
     }
 }

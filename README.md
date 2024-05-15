@@ -883,3 +883,6 @@ public FlatFileItemReader itemReader() {
             .build();
 }
 ```
+> FlatFileItemReader - delimetedlinetokenizer
+1. 기본 개념
+   * 한 개 라인의 String을 구분자 기준으로 나누어 토큰화 하는 방식
