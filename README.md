@@ -886,3 +886,77 @@ public FlatFileItemReader itemReader() {
 > FlatFileItemReader - delimetedlinetokenizer
 1. 기본 개념
    * 한 개 라인의 String을 구분자 기준으로 나누어 토큰화 하는 방식
+   * 
+> FlatFileItemReader - FixedLengthTokenizer
+1. 기본 개념
+   * 한 개 라인의 String을 사용자가 설정한 고정 길이 기준으로 나누어 토큰화 하는 방식
+   * 범위는 문자열 형식으로 설정 할 수 있다.
+     * "1~4" 또는 "1-3, 4-6, 7" 또는 "1-2, 4-5, 7-10"
+     * 마지막 범위가 열려 있으면 나머지 행이 해당 열로 읽혀진다.
+
+> FlatFileItemReader - Exception Handling
+1. 기본 개념
+    * 라인을 읽거나 토큰화 할 때 발생하는 Parsing 예외를 처리 할 수 있도록 예외 계층 제공
+    * 토큰화 검증을 엄격하게 적용하지 않도록 설정하면 Parsing 예외가 발생하지 않도록 할 수 있다.
+    * `FlatFileParseException`: ItemReader에서 파일을 읽어들이는 동안 발생하는 예외
+    * `FlatFileFormatException`: 
+      * LineTokenizer에서 토큰화 하는 도중 발생하는 예외
+      * FlatFileException 보다 좀 더 구체적인 예외
+    * `IncorrentTokenCountException`: `DelimitedLineTokenizer`로 토큰화 할 때 컬럼 개수와 실제 토큰화 한 컬럼 수와 다를때 발생하는 예외
+    * `IncorrentLineLengthException`: `FixedLengthLineTokenizer`로 토큰화 할 때 라인 전체 길이와 컬럼 길이의 총합과 일치하지 않을 때 발생
+    * 토큰화 검증 기준 설정
+        1. tokenizer.setColumns(new Range[] {new Range(1,5), new Range(6, 10)}); // 토큰 길이: 10자
+        2. tokenizer.setStrict(false); // 토큰화 검증을 적용하지 않음
+        3. FieldSet tokens = tokenizer.tokenize("12345") // 라인 길이: 5자
+        * LineTokenizer의 Strict 속성을 `false`로 설정하게 되면 Tokenizer가 라인 길이를 검증하지 않는다.
+        * Tokenizer가 라인 길이나 컬럼명을 검증하지 않을 경우 예외가 발생하지 않는다.
+        * FieldSet은 성공적으로 리턴이 되며 두번째 범위 값은 빈 토큰을 가지게 된다.
+
+> XML StaxEventItemReader - 개념 및 API
+* Java XML API
+  * DOM 방식
+    * 문서 전체를 메모리에 로드한 후 Tree 형태로 만들어서 데이터를 처리하는 방식, pull 방식
+    * 엘리멘트 제어는 유연하나 문서 크기가 클 경우 메모리 사용이 많고 속도가 느림
+  * SAX 방식
+    * 문서의 항목을 읽을 때마다 이벤트가 발생하여 데이터를 처리하는 방식 push 방식
+    * 메모리 비용이 적고 속도가 빠른 장점은 있으나 엘리멘트 제어가 어려움
+  * StAX 방식 (Stream API for XML)
+    * DOM과 SAX의 장점과 단점을 보완한 API 모델로서 push와 pull을 동시에 제공함
+    * XML 문서를 읽고 쓸 수 있는 양방향 파서기 지원
+    * XML 파일의 항목에서 항목으로 직접 이동하면서 Stax 파서기를 통해 구문 분석
+    * 유형
+      * Iterator API 방식
+        * XMLEventReader의 nextEvent()를 호출해서 이벤트 객체를 가지고 옴
+        * 이벤트 객체는 XML 태그 유형(요소, 텍스트, 주석 등)에 대한 정보를 제공함
+      * Cursor API 방식
+        * JDBC Resultset처럼 작동하는 API로서 XMLStreamReader는 XML 문서의 다음 요소로 커서를 이동한다.
+        * 커서에서 직접 메서드를 호출하여 현재 이벤트에 대한 자세한 정보를 얻는다.
+  * Spring-OXM
+    * 스프링의 Object XML Mapping 기술로서 XML 바인딩 기술을 추상화함
+      * Marshaller 
+        * marshall - 객체를 XML로 직렬화 하는 행위
+      * Unmarshaller
+        * unmarshall - XML을 객체로 역직렬화하는 행위
+      * Marshaller와 Unmarshaller 바인딩 기능을 제공하는 오픈소스로 JaxB2, Castor, XmlBeans, Xstream 등이 있다.
+    * 스프링 배치는 특정한 XML 바인딩 기술을 강요하지 않고 Spring OXM에 위임한다.
+      * 바인딩 기술을 제공하는 구현체를 선택해서 처리하도록 한다.
+  * Spring Batch XML
+    * 스프링 배치에서는 StAX 방식으로 XML 문서를 처리하는 StaxEventItemReader를 제공한다.
+    * XML을 읽어 자바 객체로 매핑하고 자바 객체를 XML로 쓸 수 있는 트랙잭션 구조를 지원
+  
+  * StAX 아키텍처
+    * XML 전체 문서가 아닌 조각 단위로 구문을 분석하여 처리할 수 있다.
+    * 루트 엘리먼트 사이에 있는 것들은 전부 하나의 조각(Fragment)을 구성한다.
+    * 조각을 읽을 때 DOM의 pull 방식을 사용하고 조각을 객체로 바인딩 처리하는 것은 SAX의 push 방식을 사용한다.
+
+```java
+public StaxEventItemReader itemReader() {
+    return new StaxEventItemReaderBuilder<T> ()
+            .name(String name)
+            .resource(Resource)                                 // 읽어야할 리소스 설정
+            .addFragmentRootElements(String ...rootElements)    // Fragment 단위의 루트 엘리먼트 설정, 이 루트 조각 단위가 객체와 매핑하는 기준
+            .unmarshaller(Unmarshaller)                         // Unmarshaller 객체 설정
+            .saveState(boolean)                                 // 상태 정보 저장여부 설정, 기본값은 true
+            .build();
+}
+```

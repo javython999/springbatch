@@ -9,26 +9,28 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
-//@Configuration
+import java.time.LocalDateTime;
+
+@Configuration
 @RequiredArgsConstructor
-public class FlatFileItemReaderConfiguration2 {
+public class FlatFileItemReaderConfiguration4 {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager tx;
 
     @Bean
     public Job job() {
-        return new JobBuilder("FlatFileItemReader", jobRepository)
+        LocalDateTime now = LocalDateTime.now();
+        return new JobBuilder("FlatFileItemReader - " + now, jobRepository)
                 .start(step1())
                 .next(step2())
                 .build();
@@ -44,7 +46,10 @@ public class FlatFileItemReaderConfiguration2 {
                 .writer(new ItemWriter() {
                     @Override
                     public void write(Chunk chunk) throws Exception {
-                        System.out.println("items = " + chunk.getItems());
+                        chunk.forEach(item -> {
+                            System.out.println(item);
+                        });
+
                     }
                 })
                 .build();
@@ -65,11 +70,15 @@ public class FlatFileItemReaderConfiguration2 {
     public ItemReader itemReader() {
         return new FlatFileItemReaderBuilder<Customer>()
                 .name("flatfile")
-                .resource(new ClassPathResource("/customers.csv"))
+                .resource(new FileSystemResource("F:\\IdeaProject\\springbatch\\src\\main\\resources\\customer.txt"))
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<>())
                 .targetType(Customer.class)
                 .linesToSkip(1)
-                .delimited().delimiter(",")
+                .fixedLength()
+                .strict(false)
+                .addColumns(new Range(1,5))
+                .addColumns(new Range(6,7))
+                .addColumns(new Range(8,11))
                 .names("name", "age", "year")
                 .build();
     }
