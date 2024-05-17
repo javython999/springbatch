@@ -33,6 +33,9 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.batch:spring-batch-test'
+
+    implementation 'org.springframework:spring-oxm:6.1.6'
+    implementation 'com.thoughtworks.xstream:xstream:1.4.20'
 }
 
 tasks.named('test') {

@@ -960,3 +960,15 @@ public StaxEventItemReader itemReader() {
             .build();
 }
 ```
+
+> StaxEventItemReader
+1. 기본 개념
+    * Stax API 방식으로 데이터를 읽어 들이는 ItemReader
+    * Spring-OXM과 Xstream 의존성을 추가해야 한다.
+
+> JsonItemReader
+1. 기본 개념
+   * Json 데이터의 Parsing과 Binding을 JsonObjectReader 인터페이스 구현체에 위임하여 처리하는 itemReader
+   * 두가지 구현체 제공
+     * JacksonJsonObjectReader
+     * GsonJsonObjectReader

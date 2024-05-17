@@ -20,7 +20,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.LocalDateTime;
 
-@Configuration
+//@Configuration
 @RequiredArgsConstructor
 public class FlatFileItemReaderConfiguration4 {
 
