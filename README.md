@@ -972,3 +972,43 @@ public StaxEventItemReader itemReader() {
    * 두가지 구현체 제공
      * JacksonJsonObjectReader
      * GsonJsonObjectReader
+
+> Cursor Based & Paging Based
+1. 기본 개념
+    * 배치 애플리케이션은 실시간 처리가 어려운 대용량 데이터를 다루며 이 때 DB I/O의 성능 문제와 메모리 자원의 효율성 문제를 해결할 수 있어야 한다.
+    * 스프링 배치에서는 대용량 데이터 처리를 위한 두가지 해결방안을 제시하고 있다.
+2. Cursor Based 처리
+    * JDBC ResultSet의 기본 메커니즘을 사용
+    * 현재 행에 커서를 유지하며 다음 데이터를 호출하면 다음 행으로 커서를 이동하며 데이터 반환이 이루어지는 Streaming 방식의 I/O이다.
+    * ResultSet이 open 될 때마다 next() 메소드가 호출 되어 Database의 데이터가 반환되고 객체와 매핑이 이루어진다.
+    * DB connection이 연결되면 배치 처리가 완료될 때 까지 데이터를 읽어오기 때문에 DB와 SocketTimeout을 충분히 큰 값으로 설정 필요.
+    * 모든 결과를 메모리에 항당하기 때문에 메모리 사용량이 많아지는 단점이 있다.
+    * Connection 연결 유지 시간과 메모리 공간이 충분하다면 대량의 데이터 처리에 적합할 수 있다.(fetchSize 조절)
+3. Paging Based 처리
+    * 페이징 단위로 데이터를 조회하는 방식으로 Page Size 만큼 한번에 메모리에 가지고 온 다음 한 개씩 읽는다.
+    * 한 페이지를 읽을 때마다 Connection을 맺고 끊기 때문에 대량의 데이터를 처리하더라도 SokectTimeout 예외가 거의 일어나지 않는다.
+    * 시작 행 번호를 지정하고 페이지에 반환시키고자 하는 행의 수를 지정한 후 사용 - Offset, Limit
+    * 페이징 단위의 결과만 메모리에 할당하기 때문에 메모리 사용량이 적어지는 장점이 있다.
+    * Connection 연결 유지 시간이 길지 않고 메모리 공간을 효율적으로 사용해야하는 데이터 처리에 적합할 수 있다.
+
+> JDBC CursorItemReader
+1. 기본 개념
+    * Cursor 기반의 JDBC 구현체로서 ResultSet과 함께 사용되며 DataSource에서 Connection을 얻어와서 SQL을 실행한다.
+    * Thread 안정성을 보장하지 않기 때문에 멀티 스레드 환경에서 사용할 경우 동시성 이슈가 발생하지 않도록 별도 동기화 처리가 필요하다.
+2. API
+```java
+public JdbcCursorItemReader<T>() {
+    return new JdbcCursorItemReaderBuilder<T>()
+        .name("cursorItemReader")           
+        .fetchSize(int chunkSize)           // Cursor 방식으로 데이터를 가지고 올 때 한번에 메모리에 할당할 크기를 설정한다.
+        .dataSource(DataSource)             // DB에 접근하기 위해 DataSource 설정
+        .rowMapper(RowMapper)               // 쿼리 결과로 반환되는 데이터와 객체를 매핑하기 위한 RowMapper 설정
+        .beanRowMapper(Class<T>)            // 별도의 RowMapper를 설정하지 않고 클래스 타입을 설정하면 자동으로 객체와 매핑
+        .sql(String sql)                    // ItemReader가 조회 할 때 사용할 쿼리 문장 설정
+        .queryArguments(Object... args)     // 쿼리 파라미터 설정
+        .maxItemCount(int count)            // 조회 할 최대 item 수
+        .currentItemCount(int count)        // 조회 item의 시작 시점
+        .maxRows(int maxRows)               // ResultSet 오브젝트가 포함 할 수 있는 최대 행 수
+        .build();
+}
+```
