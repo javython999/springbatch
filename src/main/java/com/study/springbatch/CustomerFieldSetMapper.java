@@ -13,6 +13,7 @@ public class CustomerFieldSetMapper implements FieldSetMapper<Customer> {
             return null;
         }
 
-        return new Customer(fieldSet.readString(0), fieldSet.readInt(1), fieldSet.readInt(2));
+        //return new Customer(fieldSet.readString(0), fieldSet.readInt(1), fieldSet.readInt(2));
+        return null;
     }
 }

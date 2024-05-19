@@ -9,7 +9,7 @@ public class CustomItemProcessor implements ItemProcessor<Customer, Customer> {
     public Customer process(Customer customer) throws Exception {
         System.out.println("CustomItemProcessor process called");
         System.out.println("set UpperCase");
-        customer.setName(customer.getName().toUpperCase());
+        //customer.setName(customer.getName().toUpperCase());
         return customer;
     }
 }

@@ -1,14 +1,17 @@
 package com.study.springbatch;
 
-import lombok.AllArgsConstructor;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Entity
 public class Customer {
-    private String name;
-    private int age;
-    private int year;
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String firstname;
+    private String lastname;
+    private String birthdate;
 }

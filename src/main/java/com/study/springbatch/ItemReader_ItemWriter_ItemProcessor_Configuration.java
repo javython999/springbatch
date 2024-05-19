@@ -55,9 +55,9 @@ public class ItemReader_ItemWriter_ItemProcessor_Configuration {
     @Bean
     ItemReader<Customer> itemReader() {
         return new CustomItemReader(Arrays.asList(
-           new Customer("user1", 0, 0),
-           new Customer("user2", 0, 0),
-           new Customer("user3", 0, 0)
+           //new Customer("user1", 0, 0),
+           //new Customer("user2", 0, 0),
+           //new Customer("user3", 0, 0)
         ));
     }
 
