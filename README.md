@@ -1029,3 +1029,35 @@ public JpaCursorItemReader itemReader() {
             .build();
 }
 ```
+
+> JDBCPagingItemReader
+1. 기본 개념
+   * Paging 기반의 JDBC 구현체로서 쿼리에 시작 행 번호(Offset)와 페이지에서 반환 할 행 수(Limit)를 지정해서 SQL을 실행한다.
+   * 스프링 배치에서 offset과 limit을 PageSize에 맞게 자동으로 생성해 주며 페이징 단위로 데이터를 조회할 때마다 새로운 쿼리가 실행한다.
+   * 페이지마다 새로운 쿼리를 실행하기 때문에 페이징 시 결과 데이터의 순서가 보장될 수 있도록 order by 구문이 작성되도록 한다.
+   * 멀티 스레드 환경에서 Thread 안정성을 보장하기 때문에 별도의 동기화를 할 필요가 없다.
+   * PagingQueryProvider
+     * 쿼리 실행에 필요한 쿼리문을 ItemReader에게 제공하는 클래스
+     * 데이터베이스마다 페이징 전략이 다르기 때문에 각 데이터베이스 유형마다 다른 PaingQueryProvider를 사용한다.
+     * Select절, From절, sortKey는 필수로 설정해야 하며 where, group by절은 필수가 아니다.
+2. API
+```java
+public JdbcPagingItemReader itemReader() {
+    return new JdbcPagingItemReaderBuilder<T>()
+            .name("pagingItemReader")                           
+            .pageSize(int pageSize)                             // 페이지 크기 설정(쿼리 당 요청할 레코드 수)
+            .dataSource(DataSource)                             // DB에 접근하기 위해 DataSource 설정
+            .queryProvider(PagingQueryProvider)                 // DB 페이징 전략에 따른 PagingQueryProvider 설정
+            .rowMapper(Class<T>)                                // 쿼리 결과로 반환되는 데이터와 객체를 매핑하기 위한 RowMapper 설정
+            .selectClause(String selectClause)                  // select절 설정
+            .fromClause(Strinf fromClause)                      // from절 설정
+            .where(String whereClause)                          // where절 설정
+            .groupClause(String groupClause)                    // group절 설정
+            .sortKey(Map<String, Object> sortKeys)              // 정렬을 위한 유니크한 키 설정
+            .parameterValues(Map<String, Object> paramters)     // 쿼리 파라미터 설정
+            .maxItemCount(int Count)                            // 조회 할 최대 item 수
+            .currentItemCount(int count)                        // 조회 item의 시작 지점
+            .maxRows(int maxRows)                               // resultSet 오브젝트가 포함 할 수 있는 최대 행 수
+            .build();
+}
+```
