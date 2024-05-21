@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@Configuration
+//@Configuration
 @RequiredArgsConstructor
 public class JdbcPagingItemReaderConfiguration {
     private final JobRepository jobRepository;

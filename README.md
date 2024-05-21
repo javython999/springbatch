@@ -1061,3 +1061,22 @@ public JdbcPagingItemReader itemReader() {
             .build();
 }
 ```
+> JpaPagingItemReader
+1. 기본 개념
+    * Paging 기반의 JPA 구현체로서 EntityManagerFactory 객체가 필요하며 쿼리는 JPQL을 사용한다.
+2. API
+```java
+public JpaPagingItemReader itemrReaer() {
+    return new JpaPagingItemReaderBuilder<T>()
+            .name("pagingItemReader")
+            .pageSize(int count)                                // 페이지 크기 설정 (쿼리 당 요청할 레코드 수)
+            .queryString(String JPQL)                           // itemReader가 조회 할 때 사용할 JPQL 문장 설정
+            .EntityManagerFactory(EntityManagerFactory)         // JPQL을 실행하는 EntityManager를 생성하는 팩토리
+            .parameterValue(Map<String, Object> parameters)     // 쿼리 파라미터 설정
+            .build();
+}
+```
+
+> ItemReaderAdapter
+1. 기본 개념
+    * 배치 Job 안에서 이미 있는 DAO나 다른 서비스를 ItemReader 안에서 사용하고자 할 때 위임 역할을 한다.
