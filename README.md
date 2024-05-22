@@ -1080,3 +1080,59 @@ public JpaPagingItemReader itemrReaer() {
 > ItemReaderAdapter
 1. 기본 개념
     * 배치 Job 안에서 이미 있는 DAO나 다른 서비스를 ItemReader 안에서 사용하고자 할 때 위임 역할을 한다.
+***
+## 스프링 배치 청크 프로세스 활용 - ItemWriter
+1. 기본 개념
+   * 2차원 데이터(표)로 표현된 유형의 파일을 처리하는 ItemWriter
+   * 고정 위치로 정의된 데이터 필드나 특수 문자에 의해 구별된 데이터의 행을 기록한다.
+   * Resource와 LineAggregator 두 가지가 요소가 필요하다.
+2. 구조
+> FlatFileItemWriter
+>
+> String encoding = DEFAULT_CHARSET // 문자열 인코딩, 디폴트는 Charset.defaultCharset()
+> 
+> boolean append = false // 대상 파일이 이미 있는 경우 데이터를 계속 추가할 것인지 여부
+> 
+> Resource resource  // 작성해야 할 리소스
+> 
+> LineAggregator<T> lineAggregator
+> 
+> FlatFileHeaderCallback headerCallback // 헤더를 파일에 쓰기 위한 콜백 인터페이스
+> 
+> FlatFileFooterCallback footerCallback // 푸터를 파일에 쓰기 위한 콜백 인터페이스
+
+* LineAggregator
+  * Item을 받아서 String으로 변환하여 리턴한다
+  * FieldExtractor를 사용해서 처리할 수 있다
+  * 구현체
+    * PassThroughLineAggregator, DelimitedLineAggregator, FormatterLineAggregator
+* FieldExtractor
+  * 전달 받은 Item 객체의 필드를 배열로 만들고 배열을 합쳐서 문자열을 만들도록 구현하도록 제공하는 인터페이스
+  * 구현체
+    * BeanWrapperFieldExtractor, PassThroughFieldExtractor
+
+```java
+public FlatFileItemWriter itemWriter() {
+    return new FlatFileItemWriterBuilder<T>()
+            .name(String name)
+            .resource(Resource)                         // 쓰기할 리소스 설정
+            .lineAggregator(LineAggregator<T>)          // 객체를 String으로 변환하는 LineAggregator 객체 설정
+            .append(boolean)                            // 존재하는 파일에 내용을 추가할 것인지 여부 설정
+            .fieldExtractor(FiledExtractor<T>)          // 객체 필드를 추출해서 배열로 만드는 FeildExtractor 설정
+            .headerCallback(FlatFileHeaderCallback)     // 헤더를 파일에 쓰기위한 콜백 인터페이스 
+            .footerCallback(FlatFileFooterCallback)     // 푸터를 파일에 쓰기위한 콜백 인터페이스
+            .shouldDeleteifExists(boolean)              // 파일이 이미 존재한다면 삭제
+            .shouldDeleteIfEmpty(boolean)               // 파일의 내용이 비어 있다면 삭제 
+            .delimited().delimiter(String delimiter)    // 파일의 구분자를 기준으로 파일을 작성하도록 설정
+            .formatted().format(String format)          // 파일의 고정길이를 기준을 파일을 작성하도록 설정
+            .build();
+}
+```
+
+> FlatFileItemWriter - delimitedLineAggregator
+* 기본 개념
+  * 객체의 필드 사이에 구분자를 삽입해서 한 문자열로 변환한다.
+
+> FlatFileItemWriter - FormatterLineAggregator
+* 기본 개념
+  * 객체의 필드를 사용자가 설정한 Formatter 구문을 통해 문자열로 변환한다.

@@ -17,7 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.LocalDateTime;
 
-@Configuration
+//@Configuration
 @RequiredArgsConstructor
 public class ItemReaderAdapterConfiguration {
     private final JobRepository jobRepository;
