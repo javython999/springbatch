@@ -48,7 +48,7 @@ public class FlatFileItemWriterConfiguration {
         return new StepBuilder("step1", jobRepository)
                 .<FlatFileItem, FlatFileItem>chunk(5, tx)
                 .reader(customItemReader())
-                .writer(customItemWriter())
+                .writer(customItemWriter2())
                 .build();
     }
 
@@ -74,6 +74,16 @@ public class FlatFileItemWriterConfiguration {
                 .shouldDeleteIfEmpty(true)
                 .delimited()
                 .delimiter("|")
+                .names(new String[] {"id", "name", "age"})
+                .build();
+    }
+
+    @Bean
+    public ItemWriter<? super FlatFileItem> customItemWriter2() {
+        return new FlatFileItemWriterBuilder<FlatFileItem>()
+                .name("itemWriter")
+                .resource(new FileSystemResource("F:\\IdeaProject\\springbatch\\src\\main\\resources\\flatfile.txt"))
+                .formatted().format("%-2d%-6s%-2d")
                 .names(new String[] {"id", "name", "age"})
                 .build();
     }
