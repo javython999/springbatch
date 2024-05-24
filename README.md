@@ -1136,3 +1136,42 @@ public FlatFileItemWriter itemWriter() {
 > FlatFileItemWriter - FormatterLineAggregator
 * 기본 개념
   * 객체의 필드를 사용자가 설정한 Formatter 구문을 통해 문자열로 변환한다.
+
+> XML StaxEventItemWriter
+* 기본 개념
+  * XML 쓰는 과정은 읽기 과정에 대칭적이다.
+  * StaxEventItemWriter는 Resource, marshaller, rootTagName이 필요하다.
+* API
+```java
+public StaxEventItemReader itemReader() {
+    return new StaxEventItemWriterBuilder<T>()
+            .name(String name)
+            .resource(Resource)         // 쓰기할 리소스 설정
+            .rootTagName()              // 조각 단위의 루트가 될 이름 설정
+            .overwriteOutPut(boolean)   // 파일이 존재하면 엎어 쓸 것인지 설정
+            .marshaller(Marshaller)     // Marshaller 객체 설정
+            .headerCallback()           // 헤더를 파일에 쓰기 위한 콜백 인터페이스
+            .footerCallback()           // 푸터를 파일에 쓰기 위한 콜백 인터페이스
+            .build();
+}
+```
+
+> Json FileItemWriter
+* 기본 개념
+  * 객체를 받아 Json String으로 변환하는 역할을 한다.
+* API
+```java
+public JsonFileItemWriter itemWriter() {
+    return new JsonFileItemWirterBuilder<T> ()
+            .name(String name)
+            .resource(Resource)                             // 쓰기할 리소스 설정
+            .append(boolean)                                // 존재하는 파일에 내용을 추가 여부 설정
+            .jsonObjectMarshaller(JsonObjectMarshaller)     // JsonObjectMarshaller 객체 설정
+            .headerCllback(FlatFileHeaderCallback)          // 헤더를 파일에 쓰기 위한 콜백 인터페이스
+            .footerCallback(FlatFileFooterCallback)         // 푸터를 파일에 쓰기 위한 콜백 인터페이스
+            .shouldDeleteIfExists(boolean)                  // 파일이 이미 존재한다면 삭제 여부 설정
+            .shouldDeleteIfEmpty(boolean)                   // 파일의 내용이 비어있다면 삭제 여부 설정
+            .build();
+            
+}
+```
