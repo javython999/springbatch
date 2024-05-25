@@ -1175,3 +1175,21 @@ public JsonFileItemWriter itemWriter() {
             
 }
 ```
+> JdbcBatchItemWriter
+* 기본 개념
+  * JdbcCursorItemReader 설정과 마찬가지로 datasource를 지정하고 SQL속성에 실행할 쿼리를 설정
+  * JDBC의 Batch 기능을 사용하여 bulk insert/update/delete 방식으로 처리
+  * 단건 처리가 아닌 일괄처리이기 때문에 성능에 이점을 가진다.
+* API
+```java
+public JdbcBatchItemWriter itemWriter() {
+    return new JdbcBatchItemWriterBuilder<T>()
+            .name(String name)         
+            .datasrouce(Datasource)     // DB에 접근하기 위해 Datasource 설정
+            .sql(String sql)            // ItemWriter가 사용할 쿼리 문장 설정
+            .assertUpdates(boolean)     // 트랜잭션 이후 적어도 하나의 항목이 행을 업데이트 혹은 삭제하지 않을 경우 예외방생여부를 설정함, 기본값은 true
+            .beanMapped()               // Pojo 기반으로 Insert SQL의 Values를 매핑
+            .columnMapped()             // key, value 기반으로 Insert SQL의 Values를 매핑
+            .build();
+}
+```
