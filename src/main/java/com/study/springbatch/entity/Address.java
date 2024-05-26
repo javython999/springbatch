@@ -1,4 +1,4 @@
-package com.study.springbatch;
+package com.study.springbatch.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

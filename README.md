@@ -1193,3 +1193,20 @@ public JdbcBatchItemWriter itemWriter() {
             .build();
 }
 ```
+> JpaItemWriter
+* 기본 개념
+  * JPA Entity 기반으로 데이터를 처리하며 EntityManagerFactory를 주입받아 사용한다.
+  * Entity를 하나씩 chunk 크기 만큼 insert 혹은 merge 한다음 flush 한다.
+  * ItemReader나 ItemProcessor로부터 아이템을 전달 받을 때는 Entity 클래스 타입으로 받아야 한다.
+* API
+```java
+public JpaItemWriter itemWriter() {
+    return new JpaItemWriterBuilder<T>()
+            .usePersis(boolean)                             // Entity를 persist() 할 것인지 여부 설정, false이면 merge() 처리
+            .entityManagerFactory(EntityManagerFactory)     // EntityManagerFactory 설정
+            .build();
+}
+```
+> ItemWriterAdapter
+* 기본 개념
+  * 배치 Job안에서 이미 있는 DAO나 다른 서비스를 ItemWriter안에서 사용하고자 할 때 위임 역할을 한다.

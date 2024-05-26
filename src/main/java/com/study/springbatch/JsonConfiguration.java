@@ -1,5 +1,6 @@
 package com.study.springbatch;
 
+import com.study.springbatch.entity.Customer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;

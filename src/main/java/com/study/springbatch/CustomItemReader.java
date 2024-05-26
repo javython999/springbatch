@@ -1,11 +1,11 @@
 package com.study.springbatch;
 
+import com.study.springbatch.entity.Customer;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,5 +1,6 @@
-package com.study.springbatch;
+package com.study.springbatch.section9.flatfile;
 
+import com.study.springbatch.vo.FlatFileItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;

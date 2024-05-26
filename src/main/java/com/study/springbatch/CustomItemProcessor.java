@@ -1,5 +1,6 @@
 package com.study.springbatch;
 
+import com.study.springbatch.entity.Customer;
 import org.springframework.batch.item.ItemProcessor;
 
 public class CustomItemProcessor implements ItemProcessor<Customer, Customer> {

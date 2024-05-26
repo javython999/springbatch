@@ -1,5 +1,6 @@
 package com.study.springbatch;
 
+import com.study.springbatch.entity.Person;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -11,7 +12,6 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.LocalDateTime;
@@ -59,7 +59,7 @@ public class JpaPagingItemReaderConfiguration {
         return items -> {
             System.out.println("--------------------");
             for (Person item : items) {
-                 System.out.println(item.getAddress().getLocation());
+                 //System.out.println(item.getAddress().getLocation());
             }
             System.out.println("--------------------");
         };

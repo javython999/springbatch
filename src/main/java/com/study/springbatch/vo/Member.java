@@ -1,4 +1,4 @@
-package com.study.springbatch;
+package com.study.springbatch.vo;
 
 import lombok.Data;
 
