@@ -1210,3 +1210,28 @@ public JpaItemWriter itemWriter() {
 > ItemWriterAdapter
 * 기본 개념
   * 배치 Job안에서 이미 있는 DAO나 다른 서비스를 ItemWriter안에서 사용하고자 할 때 위임 역할을 한다.
+***
+## 스프링 배치 청크 프로세스 활용 - ItemProcessor
+> CompositeItemProcessor
+* 기본 개념
+    * ItemProcessor들을 연결(Chaining)해서 위임하면 각 ItemProcessor를 실행시킨다.
+    * 이전 ItemProcessor 반환 값은 다음 ItemProcessor 값으로 연결된다.
+* API
+```java
+public ItemProcessor itemProcessor() {
+    return new CompositeItemProcessorBuilder<T>()
+            .deletages(ItemProcessor<?, ?>... deletages)    // 체이닝 할 ItemProcessor 객체 설정
+            .build();
+}
+```
+> ClassifierCompositeItemProcessor
+* 기본 개념
+  * Classifier로 라우팅 패턴을 구현해 ItemProcessor 구현체 중에서 하나를 호출하는 역할을 한다.
+* API
+```java
+public ItemProcessor itemProcessor() {
+    return new ClassifierCompositeItemProcessorBuilder<>()
+            .classifier(Classifier)     // 분류자 설정
+            .build();
+}
+```
