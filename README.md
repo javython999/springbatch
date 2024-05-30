@@ -1258,3 +1258,33 @@ public ItemProcessor itemProcessor() {
     * RepeatCallback 안에서 예외가 발생하면 RepeateTemplate가 ExceptionHandler를 참조해서 예외를 다시 던질지 여부 결정
     * 예외를 받아서 다시 던지게 되면 반복 종료
     * 비정상 종료를 알리는데 사용된다.
+> FaultTolerant
+* 기본 개념
+    * 스프링 배치는 job 실행 중에 오류가 발생할 경우 장애를 처리하기 위한 기능을 제공하며 이를 통해 복원력을 향상시킬 수 있다.
+    * 오류가 발생해도 Step 이 즉시 종료되지 않고 Retry 혹은 Skip 기능을 활성화 함으로써 내결함성 서비스가 가능하도록 한다.
+    * 프로그램의 내결함성을 위해 Skip과 Retry 기능을 제공한다.
+      * Skip
+        * ItemReader / ItemProcessor / ItemWriter에 적용할 수 있다.
+      * Retry
+        * ItemProcessor / ItemWriter에 적용할 수 있다.
+      * FaultTolerant 구조는 청크 기반의 프로세스 기반위에 Skip과 Retry 기능이 추가되어 재정의 되어 있다.
+* API
+```java
+public Step batchStep() {
+    return new StepBuilderFactory.get("batchStep")
+            .<I, O>chunk(10)
+            .reader(ItemReader)
+            .writer(ItemWriter)
+            .falutTolerant()                                // 내결함성 기능 활성화
+            .skip(Class<? extends Throwable> type)          // 예외 발생시 Skip할 예외 타입 설정
+            .skipLimit(int skipLimit)                       // skip 제한 횟수 설정
+            .noSkip(Class<? extends Throwable> type)        // skip을 어떤 조건과 기준으로 적용 할 것인지 정책 설정
+            .retry(Class<? extends Throwable> type)         // 예외 발생 시 Skip 하지 않을 예외 타입 설정
+            .retryLimit(int retryLimit)                     // 예외 발생 시 Retry 할 예외 타입 설정
+            .retryPolicy(RetryPolicy retryPolicy)           // Retry를 어떤 조건과 기준으로 적용할 것인지 정책 설정
+            .backOffPolicy(BackOffPlicy backOffPolicy)      // 다시 Retry하기까지의 지연시간(단위:ms)을 설정
+            .noRetry(Class<? extends Throwable> type)       // 예외 발생 시 Retry 하지 않을 예외 타입 설정 
+            .noRollback(Class<? extends Throwable> type)    // 예외 발생 시 Rollback 하지 않을 예외 타입설정
+            .build();
+}
+```
