@@ -1288,3 +1288,33 @@ public Step batchStep() {
             .build();
 }
 ```
+> Skip
+* Skip은 데이터를 처리하는 동안 설정된 Exception이 발생했을 경우, 해당 데이터 처리를 건너뛰는 기능이다.
+* 데이터의 사소한 오류에 대해 Step의 실패처리 대신 Skip을 함으로써, 배치 수행의 빈번한 실패를 줄일 수 있게 한다.
+* Skip 기능은 내부적으로 SkipPolicy를 통해 구현되어 있다.
+* Skip 기능 여부를 판별하는 기준은 다음과 같다.
+  1. Skip 대상에 포함된 예외인지 여부
+  2. Skip 카운터를 초과 했는지 여부
+> SkipPolicy
+* 스킵 정책에 따라 아이템의 Skip 여부를 판단하는 클래스
+* 스프링 배치가 기본적으로 제공하는 SkipPolicy 구현체들이 있으며 필요시 직접 생성해서 사용할 수 있다. 그리고 내부적으로 Classfier 클래스들을 활용하고 있다.
+* 종류 
+  * AlwaysSkipItemSkipPlicy: 항상 Skip
+  * ExceptionClassifierSkipPolicy: 예외 대상을 분류하여 Skip 여부를 결정한다.
+  * CompositeSkipPolicy: 여러 SkipPolicy를 탐색하면서 SKip 여부를 결정한다.
+  * LimitCheckingItemSkipPolicy: Skip 카운터 및 예외 등록 결과에 따라 Skip 여부를 결정한다.
+  * NeverSkipItemSkipPolicy: Skip을 하지 않는다.
+```java
+public Step batchStep() {
+    return stepBuilderFactory.get("batchStep")
+            .<I, O>chunk(10)
+            .reader(ItemReader)
+            .writer(ItemWriter)
+            .faultTolerant()
+            .skip(Class<? extends Throwable type> type)     // 예외 발생 시 Skip 할 예외 타입 설정
+            .skipLimit(int skipLimit)                       // Skip 제한 횟수 설정, ItemReader, ItemProcessor, ItemWriter 횟수 합이다.
+            .skipPolicy(SkipPolicy skipPolicy)              // Skip을 어떤 조건과 기준으로 적용할 것인지 정책 설정
+            .noSkip(Class<? extends Throwable> type)        // 예외 발생 시 Skip 하지 않을 예외 타입 설정
+            .build();
+}
+```
