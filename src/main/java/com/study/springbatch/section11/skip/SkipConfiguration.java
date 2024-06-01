@@ -11,13 +11,12 @@ import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy;
 import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.item.*;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Configuration
+//@Configuration
 @RequiredArgsConstructor
 public class SkipConfiguration {
 

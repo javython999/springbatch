@@ -1318,3 +1318,37 @@ public Step batchStep() {
             .build();
 }
 ```
+> Retry
+* 기본 개념
+  * Retry는 ItemProcessor, ItemWriter에서 설정된 Exeception이 발생 했을 경우, 지정한 정책에 따라 데이터 처리를 재시도하는 기능이다.
+  * Skip과 마찬가지로 Retry를 함으로써, 배치수행의 빈번한 실패를 줄일 수 있게 한다.
+* Retry 기능은 내부적으로 RetryPolicy를 통해 구현되어있다
+* Retry 가능 여부를 판별하는 기준은 다음과 같다
+  1. 재시도 대상에 포함된 예외인지 여부
+  2. 재시도 카운터를 초과했는지 여부
+> RetryPolicy
+* 재시도 정책에 따라 아이템의 retry 여부를 판단하는 클래스
+* 기본적으로 제공하는 RetryPolicy 구현체들이 있으며 필요시 직접 생성해서 사용할 수 있다.
+  * AlwaysRetryPolicy: 항상 재시도를 허용한다.
+  * ExceptionClassifierRetryPolicy: 예외대상을 분류하여 재시도 여부를 결정한다.
+  * CompositeRetryPolicy: 여러 RetryPolicy를 탐색하면서 재시도 여부를 결정한다.
+  * SimpleRetryPolicy: 재시도 횟수 및 예외 등록 결과에 따라 재시도 여부를 결정한다. 기본값으로 설정된다.
+  * MaxAttemptRetryPolicy: 재시도 회숫에 따라 재시도 여부를 결정한다.
+  * TimeoutRetryPolicy: 주어진 시간동안 재시도를 허용한다.
+  * NeverRetryPolicy: 최초 한번만 허용하고 그 이후로는 허용하지 않는다.
+```java
+public Step batchStep() {
+    return stepBuilderFactory.get("batchStep")
+            .<I, O>chunk(10)
+            .reader(ItemReader)
+            .writer(ItemWriter)
+            .faultTolerant()
+            .retry(Class<? extends Throwable> type)         // 에외 발생시 Retry할 예외 타입 설정
+            .retryLimit(int retryLimit)                     // Retry 제한 횟수 설정
+            .retryPolicy(SkipPolicy skipPolicy)             // Retry를 어떤 조건과 기준으로 적용 할 것인지 정책 설정
+            .noRetry(Class<? extends Throwable> type)       // 예외 발생시 Retry 하지 않을 예외 타입 설정
+            .backOffPolicy(BackOffPolicy backOffPolicy)     // 다시 Retry하기까지의 지연시간(단위:ms)을 설정
+            .noRollback(Class<? extends Throwable> type)    // 예외 발생시 Rollback 하지 않을 예외타입 설정
+            .build();
+}
+```
