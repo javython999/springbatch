@@ -1,19 +1,17 @@
 package com.study.springbatch.section11.retry;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.classify.BinaryExceptionClassifier;
 import org.springframework.classify.Classifier;
 import org.springframework.retry.RecoveryCallback;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.support.DefaultRetryState;
 import org.springframework.retry.support.RetryTemplate;
-import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class RetryItemProcessor2 implements ItemProcessor<String, RetryCustomer> {
 
-    @Autowired
+    //@Autowired
     private RetryTemplate retryTemplate;
 
     private int count = 0;

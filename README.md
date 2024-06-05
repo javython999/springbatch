@@ -1375,3 +1375,26 @@ public Step batchStep() {
      * Step 마다 스레드가 할당되어 여러개의 Step을 병렬로 실행하는 방법
   5. Partitioning
      * Master / Slave 방식으로 Master가 데이터를 파티셔닝 한 다음 각 파티션에게 스레드를 할당하여 Slave가 독립적으로 작동하는 방식
+> AsyncItemProcessor / AsyncItemWriter
+* 기본 개념
+  * Step 안에서 ItemProcessor가 비동기적으로 동작하는 구조
+  * AsyncItemProcessor와 AsyncItemWriter가 함께 구성이 되어야 함
+  * AsyncItemProcessor로부터 AsyncItemWriter가 받는 최종 결과값은 List<Future<T>>타입이며 비동기 실행이 완료 될 때까지 대기한다.
+  * spring-batch-intergration 의존성이 필요하다.
+```java
+public Step step() throws Exception {
+    return stepBuilderFactory.get("step")
+            .<I, O>chunk(100)
+            .reader(pagingItemReader())         // ①
+            .processor(asyncItemProcessor())    // ②
+            .writer(asyncItemWriter())          // ③
+            .build()
+}
+```
+① ItemReader설정: 비동기 실행 아님
+② 비동기 실행을 위한 AsyncItemProcessor 설정
+    - 청크 개수 혹은 스레드 풀 개수 만큼 스레드가 생성되어 비동기로 실행된다.
+    - 내부적으로 실제 ItemProcessor에게 실행을 위임하고 결과를 Future에 저장한다.
+③ AsyncItemWriter 설정
+    - 비동기 실행 결과 값들을 모두 받아오기까지 대기한다.
+    - 내부적으로 실제 ItemWriter에게 최종 결과값을 넘겨주고 실행을 위임한다.
