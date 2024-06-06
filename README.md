@@ -1398,3 +1398,20 @@ public Step step() throws Exception {
 ③ AsyncItemWriter 설정
     - 비동기 실행 결과 값들을 모두 받아오기까지 대기한다.
     - 내부적으로 실제 ItemWriter에게 최종 결과값을 넘겨주고 실행을 위임한다.
+> Multi-threaded Step
+* 기본 개념
+  * Step 내에서 멀티 스레드로 Chunk 기반 처리가 이루어지는 구조
+  * TaskExecutorRepeatTemplate이 반복자로 사용되며 설정한 개수(throttleLimit)만큼의 스레드를 생성하여 수행한다.
+```java
+public Step step() throws Exception {
+    return stepBuilderFactory.get("step")
+            .<I, O> chunk(100)
+            .reader(pagingItemReader())         // ①
+            .processor(customItemProcessor())
+            .writer(customItemWriter())
+            .taskExecutor(taskExecutor())       // ②
+            .build();
+}
+```
+① Thread-safe 한 ItemReader 설정
+② 스레드 생성 및 실행을 위한 taskExecutor 설정
