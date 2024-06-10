@@ -1459,3 +1459,8 @@ public Step step() throws Exception {
 ③ 파티션 구분을 위한 값 설정: 몇개의 파티션으로 나눌 것인지
 ④ 스레드 풀 실행자 설정: 스레드 설정, 스레드 풀 관리
 ⑤ PartitionStep 생성: masterStep의 역할 담당
+
+> SynchronizedItemStreamReader
+* 기본 개념
+  * Thread-safe 하지 않은 ItemReader를 Thread-safe하게 처리하도록 하는 역할을 한다.
+  * SpringBatch 4.0부터 지원한다.

@@ -14,5 +14,5 @@ public class AsyncItem {
     private long id;
     private String firstName;
     private String lastName;
-    private String birthdate;
+    private String birthDate;
 }
