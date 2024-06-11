@@ -1464,3 +1464,51 @@ public Step step() throws Exception {
 * 기본 개념
   * Thread-safe 하지 않은 ItemReader를 Thread-safe하게 처리하도록 하는 역할을 한다.
   * SpringBatch 4.0부터 지원한다.
+***
+## 스프링 배치 이벤트 리스너
+> 기본 개념
+* Listener는 배치 흐름 중에 Job, Step, Chunk 단계의 실행 전후에 발생하는 이벤트를 받아 용도에 맞게 활용할 수 있도록 제공하는 인터셉터 개념의 클래스
+* 각 단계별로 로그기록을 남기거나 소요된 시간을 계산하거나 실행상태 정보들을 참조 및 조회 할 수 있다.
+* 이벤트를 받기 위해서는 Listener를 등록해야 하며 등록은 API 설정에 각 단계별로 지정할 수 있다.
+
+* Listener
+  * Job
+    * JobExecutionListener - Job 실행 전후
+  * Step
+    * StepExecutionListener - Step 실행 전후
+    * ChunkListener - Chunk 실행 전후 (Tasklet 실행 전후), 오류 시점
+    * ItemReadListener - ItemProcessor 실행 전후, 오류 시점, item이 null 일 경우 호출 안됨
+    * ItemProcessorListener - ItemProcessor 실행 전후, 오류시점, item이 null 일 경우 호출 안됨
+    * ItemWriterListener - ItemWriter 실행 전후, 오류 시점, item이 null 일 경우 호출 안됨
+  * SkipListener - 읽기, 쓰기, 처리 Skip 실행 시점, Item 처리가 Skip 될 경우 Skip 된 item을 추적함
+  * RetryListener - Retry 시작, 종료, 에러 시점
+
+> JobExecutionListener / StepExecutionListener
+* JobExecutionListener
+  * void beforeJob(JobExecution jobExecution) // job의 실행 전 호출
+  * void afterJob(JobExecution jobExecution)  // job의 실행 후 호출
+  * Job의 성공여부와 상관없이 호출 된다.
+  * 성공/실패 여부는 JobExecution을 통해 알 수 있다.
+```java
+public Job job() {
+    return jobBuilder.get("job")
+            .step(step())
+            .next(flow4())
+            .listener(JobExecutionListenr)
+            .listener(Object)   // 어노테이션 방식
+            .build();
+}
+```
+* StepExecutionListener
+  * void beforeStep(StepExecution stepExecution)        // Step의 실행 전 호출
+  * ExitStatus afterstep(StepExecution stepExecution)   // Step의 실행 후 호출
+  * Step의 성공 여부와 상관없이 호출 된다.
+  * 성공/실패 여부는 StepExecution을 통해 알 수 있다.
+```java
+public Step step() {
+    return stepBuilderFactory.get("step")
+            .tasklet(tasklet())
+            .listener(StepExecutionListener)
+            .build();
+}
+```
