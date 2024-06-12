@@ -1512,3 +1512,20 @@ public Step step() {
             .build();
 }
 ```
+> ChunkListener / ItemReadListener / ItemProcessorListener / ItemWriterListener
+* ChunkListener
+  * void beforeChunk(ChunkContext context)     // 트랜잭션이 시작되기 전 호출, ItemReader의 read() 메소드를 호출하기 전 이다.
+  * void afterChunk(ChunkContext context)      // Chunk가 커밋된 후 호출, ItemWriter의 write() 메소두를 호출한 후 이다.
+  * void afterChunkError(ChunkContext context) // 오류 발생 및 롤백이 되면 호출
+* ItemReaderListener
+  * void beforeRead()              // read() 메소드를 호출하기 전 매번 호출
+  * void afterRead(T item)         // read() 메소드 호출이 성공 할 때마다 호출
+  * void onReadError(Exception ex) // 읽는 도중 오류가 발생하면 호출
+* ItemProcessListener
+  * void beforeProcess(T item)                      // process() 메소드를 호출하기 전 호출
+  * void afterProcess(T item, @Nullable s result)   // process() 메소드 호출이 성공 할 때 호출
+  * void onProcessError(T item, Exception e)        // 처리 도중 오류가 발생하면 호출
+* ItemWriterListener
+  * void beforeWriter(List<? extends S> items)                         // write() 메소드를 호출하기 전 호출
+  * void afterWriter(List<? extends S> items)                          // write() 메소드 호출이 성공 할 때 호출
+  * void onWriterError(Exception exception, List<? extends S> items)   // 쓰기 도중 오류가 발생하면 호출
