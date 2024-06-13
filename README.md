@@ -1529,3 +1529,12 @@ public Step step() {
   * void beforeWriter(List<? extends S> items)                         // write() 메소드를 호출하기 전 호출
   * void afterWriter(List<? extends S> items)                          // write() 메소드 호출이 성공 할 때 호출
   * void onWriterError(Exception exception, List<? extends S> items)   // 쓰기 도중 오류가 발생하면 호출
+> RetryListener / SkipListener
+* SkipListener
+  * void onSKipInRead(Throwable t)              // read 수행중 Skip 이 발생할 경우 호출
+  * void onSkipInWrite(S item, Throwable t)     // write 수행중 Skip 이 발생할 경우 호출
+  * void onSkipInProcess(T item, Throwable t)   // process 수행중 Skip 이 발생할 경우 호출
+* RetryListener
+  * boolean open(RetryContext context, RetryCallback<T, E> callback)
+  * boolean close(RetryContext context, RetryCallback<T, E> callback, Throwable throwable)
+  * void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable)
