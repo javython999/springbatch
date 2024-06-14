@@ -1538,3 +1538,62 @@ public Step step() {
   * boolean open(RetryContext context, RetryCallback<T, E> callback)
   * boolean close(RetryContext context, RetryCallback<T, E> callback, Throwable throwable)
   * void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable)
+> Spring Batch Test
+* 스프링 배치 4.1.x 이상 버전(부트 기준 2.1) 기준
+```xml
+<dependency>
+    <groupId>org.springframework.batch</groupId>
+    <artifactId>spring-batch-test</artifactId>
+</dependency>
+```
+* `@SpringBatchTest`
+  * 자동으로 ApplicationContext에 테스트에 필요한 여러 유틸 Bean을 등록해주는 어노테이션
+    * JobLaunchTestUtils
+      * lauchJob(), launchStep()과 같은 스프링 배치 테스트에 필요한 유틸성 메소드 지원
+    * JobRepositoryTestUtils
+      * JobRepository를 사용해서 JobExecution을 생성 및 삭제 기능 메소드 지원
+    * StepScopeTestExecutionListener
+      * @StepScope 컨텍스르를 생성해 주며 해당 컨텍스트를 통해 JobParameter 등을 단위 테스트에서 DI 받을 수 있다
+    * JobScopeTestExecutionListener
+      * @JobScope 컨텍스트를 생성해 주며 해당 컨텍스트를 통해 JobParameter 등을 단위 테스트에 DI 받을 수 있다.
+* JobLauncherTestUtils
+```java
+// 실행 할 Job을 자동으로 주입 받음
+// 한 개의 Job만 받을 수 있음(Job 설정 클래스를 한 개만 지정해야 함)
+@Autowired
+void setJob(Job job)
+
+// Job을 실행시키고 JobExecution을 반환
+JobExecution launchJob(JobParameters jobParameters)
+
+// Step을 실행시키고 JobExecution을 반환
+JobExecution lauchStep(String stepName)
+```
+* JobRepositoryTestUtils
+```java
+// JobExecutin 생성 - job 이름, step 이름 생성, 생성 개수
+List<JobExecution> createJobExecutions(String jobName, String[] stepNames, int count)
+
+// JobExectuion 삭제 - JobExecution 목록
+void removeJobExecutions(Collection<JobExecution> list)
+```
+
+```java
+@RunWith(SpringRunner.class)
+@SpringBatchTest
+@SpringBootTest(classes={BatchJobConfiguration.class, TestBatchCOnfig.class})
+public class BatchJobConfigurationTest {
+    ...
+}
+```
+* `@SpringBatchTest` - JobLauncherTestUtils, JobRepositoryTestUtils 등을 제공하는 어노테이션
+* `@SpringBootTest(classes={...})` - Job 설정 클래스 지정, 통합 테스트를 위한 여러 의존성 빈들을 주입 받기 위한 어노테이션
+
+```java
+@Configuration
+@EnableAutoConfiguration
+@EnableBathProcessing
+public class TestBatchConfig {}
+```
+* `@EableBatchProcessing` - 테스트 시 배치환경 및 설정 초기화를 자동 구성하기 위한 어노테이션
+* 테스트 클래스마다 선언하지 않고 공통으로 사용하기 위함
