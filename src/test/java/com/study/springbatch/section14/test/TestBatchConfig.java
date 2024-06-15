@@ -1,4 +1,4 @@
-package com.study.springbatch.section14;
+package com.study.springbatch.section14.test;
 
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

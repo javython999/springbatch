@@ -1597,3 +1597,41 @@ public class TestBatchConfig {}
 ```
 * `@EableBatchProcessing` - 테스트 시 배치환경 및 설정 초기화를 자동 구성하기 위한 어노테이션
 * 테스트 클래스마다 선언하지 않고 공통으로 사용하기 위함
+
+> JobExplorer / JobRegistry / JobOperator
+* JobExplorer
+  * JobRepository의 readOnly 버전
+  * 실행 중인 Job의 실행 정보인 JobExecution 또는 Step의 실행 정보인 StepExecution을 조회할 수 있다.
+  * `List<JobInstance> getJobInstance(String jobName, int start, int count)` start 인덱스로부터 count만큼의 JobInstance를 얻는다.
+  * `JobExecution getJobExecution(Long executionId)` JobExecutionId를 이용하여 JobExecutions을 얻는다.
+  * `StepExecution getStepExecution(Long jobExecutionId, Long stepExecutionId)` JobExecutionId와 StepExecutinId를 이용하여 StepExecution을 얻는다.
+  * `JobInstance getJobInstance(Long instanceId)` jobInstnaceId를 이용하여 JobInstance를 얻는다.
+  * `List<JobExecution> getJobExecutions(JobInstance jobInstance)` JobInstance를 이용하여 JobExecutions 들을 얻는다.
+  * `Set<JobExecution>` findRunningJobExecutions(String jobName) jobName을 이용하여 실행중인 Job의 JobExecution들을 얻는다.
+  * `List<String> getJobNames()` 실행가능한 Job들의 이름을 얻는다.
+* JobRegistry
+  * 생성된 Job을 자동으로 등록, 추적 및 관리하며 여려 곳에서 job을 생성한 경우 ApplicationContext에서 job을 수집해서 사용할 수 있다.
+  * 기본 구현체로 map 기반의 MapJobRegistry 클래스를 제공한다.
+    * jobName을 key로 하고 job을 값으로 하여 매핑한다.
+  * Job 등록
+    * JobRegistryBeanPostProcessor - BeanPostProcessor 단계에서 bean 초기화 시 자동으로 JobRegistry에 Job을 등록 시켜준다.
+    * `void registry(JobFactory jobFactory)` JobFactory에 job을 등록한다.
+    * `void unregister(String name)` JobFactory에 job을 삭제한다.
+    * `Job getJob(String name)` job을 얻는다.
+    * `Set<String> getJobNames()` jobName들을 얻는다.
+* JobOperator
+  * JobExplorer, JobRepository, JobRegstry, JobLauncher를 포함하고 있으며 배치의 중단, 재시작, job 요약 등의 모니터링이 가능하다.
+  * 기본 구현체로 SimpleJobOperator 클래스를 제공한다.
+  * `Set<String> getJobNames()` 실행가능한 Job들의 이름을 얻는다.
+  * `int getJobInstanceCount(String jobName)` JobInstance 개수를 얻는다.
+  * `List<JobInstance> getJobInstance(String jobName, int start, int count)` start 인덱스부터 count만큼 JobInstance를 얻는다.
+  * `List<Long> getRunningExecutions(String jobName)` jobName을 이용하여 실행중인 Job의 Jobexecutions의 id를 얻는다.
+  * `Properties getParameters(long executionId)` job의 Executin id를 이용하여 Parameters를 얻는다.
+  * `start(String jobName, Properties jobParameters)` job의 이름, Job의 Parameters를 이용하여 Job을 시작한다.
+  * `restart(long executionId, Properties restartParameters)` JobExecutionId를 이용하여, 정지되어있거나 이미 종료된 Job중 재실행 가능한 Job을 재시작한다.
+  * `Long startNextInstance(String jobName)` 항상 새로운 Job을 실행시킨다. job에 문제가 있거나 처음부터 재시작 할 경우에 적합하다.
+  * `stop(long executionId)` JobExecutionId를 이용하여, 실행중인 Job을 정지시킨다. Stop은 graceful하게 동작한다. 즉 Stop이 즉시 이뤄지지 않으며 실행 중이던 step은 끝까지 다 실행 된 후 job이 stop된다.
+  * `JobInstance getJobInstance(long executionId)` jobExecutionId를 이용하여 JobInstance를 얻는다.
+  * `List<JobExecution> getJobExecutions(JobInstance instance)` JobInstance를 이용하여 JobExecution들을 얻는다.
+  * `JobExecution getJobExecution(long executionId)` JobExecutionId를 이용하여 JobExecution을 얻는다.
+  * `List<StepExecution> getStepExecution(long jobExecutionId)` JobExecutionId를 이용하여 StepExecution 들을 얻는다. 

@@ -1,4 +1,4 @@
-package com.study.springbatch.section14;
+package com.study.springbatch.section14.test;
 
 import org.springframework.jdbc.core.RowMapper;
 

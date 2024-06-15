@@ -1,4 +1,4 @@
-package com.study.springbatch.section14;
+package com.study.springbatch.section14.test;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -14,14 +14,13 @@ import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.support.MySqlPagingQueryProvider;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
-@Configuration
+//@Configuration
 @RequiredArgsConstructor
 public class SimpleJobConfiguration {
 
