@@ -46,5 +46,5 @@ spring:
     jdbc:
       initialize-schema: always
     job:
-      enabled: true
-      name: ${job.name:apiJob}
+      enabled: false
+      name: ${job.name:None}
